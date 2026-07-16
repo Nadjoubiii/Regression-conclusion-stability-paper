@@ -1,0 +1,396 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{array}
+
+\title{\textbf{Day-by-Day Work Plan}\\
+How Stable Are Regression Conclusions Across Subpopulations?\\
+A Finite-Sample Empirical Study}
+\author{Project execution schedule}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Overview}
+This is a compressed work plan for completing the first full draft of the paper under the assumption of approximately \textbf{8 hours of focused work per day}. The plan is designed to produce a strong draft in about \textbf{12 days}, which is aggressive but realistic if the scope is kept disciplined.
+
+\section{Main Objective}
+The objective is to complete:
+\begin{itemize}
+    \item a clear research question,
+    \item a short literature review,
+    \item a reproducible simulation study,
+    \item two real-data case studies,
+    \item all main figures and tables,
+    \item a full paper draft in LaTeX.
+\end{itemize}
+
+\section{Daily Work Structure}
+Each day should roughly follow this structure:
+\begin{itemize}
+    \item \textbf{2 hours:} reading, planning, and note consolidation,
+    \item \textbf{4 hours:} coding, computation, experiments, and debugging,
+    \item \textbf{2 hours:} writing the paper or documenting results.
+\end{itemize}
+
+The most important rule is: \textbf{write every day}. Do not wait until all results are finished.
+
+\section{12-Day Plan}
+
+\subsection*{Day 1: Lock the Scope and the Exact Contribution}
+\textbf{Main goal:} finalize the question, paper scope, and contribution.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Write the exact research question in one sentence, starting from the pooled model as the baseline.
+    \item Write a short statement of the paper's contribution.
+    \item Decide on the 4 simulation scenarios.
+    \item Decide on the 4 regression models to compare.
+    \item Decide on the 5 main stability metrics:
+    \begin{itemize}
+        \item sign stability,
+        \item standardized coefficient drift,
+        \item context-normalized drift,
+        \item transported prediction gap,
+        \item covariate shift summary.
+    \end{itemize}
+    \item Set up the project folders:
+    \begin{itemize}
+        \item \texttt{data/}
+        \item \texttt{scripts/}
+        \item \texttt{results/}
+        \item \texttt{figures/}
+        \item \texttt{paper/}
+    \end{itemize}
+    \item Create the LaTeX paper file and section headings.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item 1-page project memo,
+    \item LaTeX skeleton with sections,
+    \item clear list of models, metrics, and scenarios.
+\end{itemize}
+
+\subsection*{Day 2: Literature Review and Introduction Notes}
+\textbf{Main goal:} complete the small literature review and map the introduction.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Read and annotate approximately 6--10 relevant papers.
+    \item Take notes on:
+    \begin{itemize}
+        \item subgroup heterogeneity in regression,
+        \item interaction modeling,
+        \item transportability / distribution shift,
+        \item interpretation versus prediction.
+    \end{itemize}
+    \item Write a rough introduction outline:
+    \begin{itemize}
+        \item motivation,
+        \item prior work,
+        \item gap,
+        \item contributions.
+    \end{itemize}
+    \item Start the bibliography file.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item annotated notes for 6--10 references,
+    \item rough introduction draft,
+    \item \texttt{references.bib} started.
+\end{itemize}
+
+\subsection*{Day 3: Build the Simulation Engine}
+\textbf{Main goal:} get one complete simulation pipeline working from start to finish.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Write functions for generating pooled data and subgroup-structured data.
+    \item Write functions for fitting:
+    \begin{itemize}
+        \item pooled OLS,
+        \item pooled OLS + group indicator,
+        \item pooled OLS + interactions,
+        \item subgroup-specific OLS.
+    \end{itemize}
+    \item Write helper functions to extract:
+    \begin{itemize}
+        \item coefficient estimates,
+        \item signs,
+        \item standard errors,
+        \item RMSE / MAE.
+    \end{itemize}
+    \item Run one pooled-baseline scenario end-to-end.
+    \item Save outputs in a clean format.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item working simulation script,
+    \item one successful end-to-end run,
+    \item clear file-saving workflow.
+\end{itemize}
+
+\subsection*{Day 4: Implement All Simulation Scenarios}
+\textbf{Main goal:} finish the simulation framework for all scenarios.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Implement the 4 main scenarios, starting with the pooled baseline:
+    \begin{itemize}
+        \item pooled baseline with no heterogeneity,
+        \item covariate shift only,
+        \item coefficient heterogeneity only,
+        \item combined heterogeneity.
+    \end{itemize}
+    \item Add variation in:
+    \begin{itemize}
+        \item sample size,
+        \item collinearity,
+        \item subgroup balance.
+    \end{itemize}
+    \item Run small pilot batches to test all combinations.
+    \item Check for bugs and degenerate fits.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item stable simulation code for all scenarios,
+    \item pilot outputs confirming the setup works.
+\end{itemize}
+
+\subsection*{Day 5: Run the Full Simulation Study}
+\textbf{Main goal:} generate the main simulation results.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Run the full simulation grid.
+    \item Save all replicate-level results.
+    \item Aggregate outputs into summary tables.
+    \item Inspect how the pooled baseline behaves under each scenario:
+    \begin{itemize}
+        \item sign instability,
+        \item standardized coefficient drift,
+        \item context-normalized drift,
+        \item cross-group prediction deterioration,
+        \item covariate shift summary across subgroups.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item full raw simulation outputs,
+    \item first summary tables.
+\end{itemize}
+
+\subsection*{Day 6: Create Simulation Figures and Interpret Results}
+\textbf{Main goal:} turn the simulation output into interpretable figures and findings.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Create 4--6 core plots, such as:
+    \begin{itemize}
+        \item sign stability by scenario,
+        \item standardized coefficient drift by sample size,
+        \item context-normalized drift by sample size,
+        \item transported prediction gap by scenario,
+        \item covariate shift summary by scenario,
+        \item pooled versus subgroup coefficient comparison plots.
+    \end{itemize}
+    \item Choose the best visualizations.
+    \item Write bullet-point interpretations under each figure.
+    \item Decide which results are the strongest and deserve emphasis.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item final versions of core simulation figures,
+    \item notes on the main empirical findings.
+\end{itemize}
+
+\subsection*{Day 7: Select and Prepare Real Datasets}
+\textbf{Main goal:} choose two real datasets and prepare them for analysis.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Choose two datasets with:
+    \begin{itemize}
+        \item continuous response,
+        \item clear subgroup variable,
+        \item multiple predictors.
+    \end{itemize}
+    \item Clean and preprocess the data.
+    \item Define subgroup variables carefully.
+    \item Create exploratory tables and plots.
+    \item Check sample sizes within each subgroup.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item two analysis-ready datasets,
+    \item initial exploratory summaries.
+\end{itemize}
+
+\subsection*{Day 8: Run the Real-Data Analyses}
+\textbf{Main goal:} complete the real-data modeling and comparisons.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Fit the pooled model first, then all planned models to both datasets.
+    \item Compare:
+    \begin{itemize}
+        \item pooled coefficients,
+        \item subgroup-specific coefficients,
+        \item interaction terms,
+        \item within-group and out-of-group prediction.
+    \end{itemize}
+    \item Build 2--4 real-data tables/figures.
+    \item Write down how the real-data findings support or contrast with the simulation findings.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item completed real-data analyses,
+    \item draft figures/tables for Section 4.
+\end{itemize}
+
+\subsection*{Day 9: Write the Methods Section}
+\textbf{Main goal:} fully draft the methods section.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Write the notation and problem setup.
+    \item Define the models clearly.
+    \item Define the stability metrics mathematically.
+    \item Describe the simulation design.
+    \item Describe the real-data analysis workflow.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item full draft of the Methods section.
+\end{itemize}
+
+\subsection*{Day 10: Write the Simulation Results Section}
+\textbf{Main goal:} write the strongest section of the paper.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Insert the simulation figures and tables into LaTeX.
+    \item Write the narrative for each scenario.
+    \item Highlight the major patterns:
+    \begin{itemize}
+        \item when pooled models fail,
+        \item when interaction models help,
+        \item when prediction remains stable but interpretation does not.
+    \end{itemize}
+    \item Keep interpretation tied directly to the research questions.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item full draft of the Simulation Results section.
+\end{itemize}
+
+\subsection*{Day 11: Write the Introduction and Real-Data Section}
+\textbf{Main goal:} draft the remaining core sections.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Write the Introduction:
+    \begin{itemize}
+        \item motivation,
+        \item literature review,
+        \item gap,
+        \item contributions.
+    \end{itemize}
+    \item Write the real-data section.
+    \item Make sure the introduction promises only what the paper actually delivers.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item draft Introduction,
+    \item draft Real-Data section.
+\end{itemize}
+
+\subsection*{Day 12: Write Discussion, Conclusion, Abstract, and Polish}
+\textbf{Main goal:} complete the first full draft.
+
+\textbf{Tasks:}
+\begin{enumerate}[label=(\arabic*)]
+    \item Write the Discussion:
+    \begin{itemize}
+        \item main findings,
+        \item practical implications,
+        \item limitations,
+        \item future work.
+    \end{itemize}
+    \item Write the Conclusion.
+    \item Write the Abstract last.
+    \item Clean the references.
+    \item Check notation consistency.
+    \item Improve figure captions.
+    \item Proofread the full document once from beginning to end.
+\end{enumerate}
+
+\textbf{Deliverables by end of day:}
+\begin{itemize}
+    \item complete first full draft of the paper.
+\end{itemize}
+
+\section{Optional Days 13--14 for Buffer and Revision}
+If possible, reserve two extra days for revision.
+
+\subsection*{Day 13: Technical Revision}
+\begin{itemize}
+    \item Re-run any unstable analyses.
+    \item Simplify any overloaded sections.
+    \item Remove weak figures or unnecessary tables.
+    \item Tighten the claims to match the evidence.
+\end{itemize}
+
+\subsection*{Day 14: Writing Revision}
+\begin{itemize}
+    \item Improve clarity and flow.
+    \item Shorten repetitive paragraphs.
+    \item Make the introduction sharper.
+    \item Make sure the conclusion is specific and not generic.
+\end{itemize}
+
+\section{Checklist of Key Deliverables}
+By the end of the schedule, you should have:
+\begin{enumerate}[label=(\arabic*)]
+    \item a working bibliography,
+    \item a complete LaTeX manuscript,
+    \item a simulation pipeline in R,
+    \item two real-data analyses,
+    \item 4--6 high-quality figures,
+    \item 2--4 summary tables,
+    \item one full draft ready for feedback.
+\end{enumerate}
+
+\section{Priority Order if You Fall Behind}
+If you fall behind schedule, prioritize in this order:
+\begin{enumerate}[label=(\arabic*)]
+    \item finish the simulation study,
+    \item complete the methods and simulation results writing,
+    \item include only two real datasets,
+    \item reduce the number of figures,
+    \item postpone optional extensions.
+\end{enumerate}
+
+\section{Final Advice}
+The paper will be strongest if it remains narrow, empirical, and clear. The simulation study should carry the paper, while the real-data examples should support and illustrate the main message. The goal is not to solve all of subgroup heterogeneity or all of transportability. The goal is to produce a clean, credible empirical paper with a precise question and strong execution.
+
+\end{document}

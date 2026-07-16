@@ -1,0 +1,2 @@
+# SSR is near 1 for most settings, but it declines systematically when group count is high and minimum subgroup sizes are small.
+# highest differences when total size = 600, number of groups very high (30 groups per dataset)

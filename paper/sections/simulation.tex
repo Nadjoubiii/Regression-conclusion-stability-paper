@@ -1,0 +1,33 @@
+\section{Simulation Study}\label{sec:simulation}
+
+This section will present the four main simulation scenarios, summarize the outputs, and describe the core figures and tables.
+
+% NOTE: Simulation grid uses four imbalance patterns:
+% - balanced: equal group sizes
+% - mild: shallow deterministic linear weights (1.2 to 0.8)
+% - strong: steep deterministic linear weights (G to 1)
+% - random: group proportions drawn from a flat Dirichlet(1,...,1),
+%   equivalent to drawing G independent Exponential(1) values and
+%   normalizing by their sum. This pattern represents unsystematic
+%   random imbalance with no preferred direction or ordering, and
+%   samples the full range from near-balance to extreme concentration.
+%   Each replicate redraws the random proportions, so the "random"
+%   grid rows reflect average behavior over the entire imbalance
+%   spectrum. The Gamma(1,1) / flat Dirichlet choice is supported
+%   by the fact that it is distribution-free over the simplex: every
+%   partition of n across G groups receives equal prior probability.
+%   Document this justification in the simulation write-up.
+%
+% NOTE 2026-07-16: The grid includes degenerate settings at G=40, n=100
+% (min_group_size = 2).  With only 2 observations per group, the
+% subgroup OLS model (intercept + x1 + x2) is nearly singular,
+% producing extreme coefficient estimates and inflating drift into
+% the hundreds or thousands.  These 6 rows (out of 140) skew
+% pattern-level means dramatically: e.g. mild mean_drift jumps from
+% ~3 (median) to ~1129 (mean) because G=40 n=100 mild produced
+% drift ≈ 39303 in one random draw.  All aggregated comparisons in
+% the paper should either (a) use medians or (b) explicitly exclude
+% settings with min_group_size < 3 (dropping 6 rows, leaving 134).
+% Context-drift follows the same pattern: median ctx-drift is
+% well-behaved across patterns, while means are inflated by the same
+% degenerate rows.

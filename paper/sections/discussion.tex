@@ -1,0 +1,9 @@
+\section{Discussion}\label{sec:discussion}
+
+The NHANES age-decade case study reinforces the simulation message: pooled regression can mask meaningful subgroup heterogeneity even when average fit appears acceptable. In this application, instability is not only a magnitude effect but also a directional effect for selected predictors.
+
+The strongest example is BPSysAve. Its coefficient drifts substantially across decades and crosses zero in older groups, while context-normalized drift remains large after adjusting for mean covariate separation. This indicates that the observed instability is not explained only by distributional shift in predictors.
+
+A small-sample concern is reasonable for the $0$--$9$ subgroup, and sensitivity checks confirm that this group contributes to instability for some terms. However, the main BPSysAve instability persists after excluding $0$--$9$, and prediction gains from subgroup-specific models remain across all decades. The substantive conclusion is that age-stratified structure matters for both interpretation and prediction in this specification.
+
+These findings should be interpreted as an empirical demonstration rather than a universal biomedical claim. The analysis uses one linear specification and in-sample subgroup comparisons. A natural next step is decade-wise cross-validation and bootstrap uncertainty quantification for drift metrics.

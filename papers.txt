@@ -1,0 +1,44 @@
+Stable Regression: On the Power of Optimization over Randomization — closest conceptual match; focuses on stability across subpopulations and coefficient stability; probably the first paper to read for this project.
+https://jmlr.org/papers/volume21/19-408/19-408.pdf
+this paper talks about how to make regression robust accross all subpopulations using stable regression could be useful
+-- will include this somehow in introduction, maybe in analysis/discussion section too (as an honorable mention/alternative to simple rigression)
+
+
+
+Estimating Heterogeneous Treatment Effects with Observational Data — useful if you care about how effects differ across subpopulations and how to model that with propensity scores.
+-- This one i shall use in the intro/motivation section, make note of that to be put in references too
+
+An analysis of tests for regression coefficient stability — classic paper on testing whether regression coefficients stay constant across groups.
+-- not very relevant, just takes the alternative hypothesis to be an AR(1) function rather than non constant
+
+Two Methods for Examining the Stability of Regression Coefficients — directly about coefficient stability testing.
+-- could be mentioned as a temporal stability paper (time rather than subgroups)  
+
+Testing for Regression Coefficient Stability with a Stationary AR(1) ... — another direct stability-testing paper.
+Irrelevant, could be used in intro to say that we're not approaching the problme from this approach 
+
+
+---- papers that could be interesting ------
+These references directly inform the design and comparison of your analytical strategies (pooled OLS, group indicators, interactions, and subgroup-specific regressions):
+
+Interaction vs. Stratified Regression Models
+A recent 2026 study by Common reporting errors in subgroup analysis uses Monte Carlo simulations to compare these exact two models for estimating heterogeneous treatment effects. They evaluate performance using metrics like Mean Squared Error (MSE), Empirical Coverage Rate (ECR), and Empirical Statistical Power (ESP) across varying sample sizes, subgroup proportions, and correlation structures. They find that stratified regression controls Type I error better with large, balanced samples, while the interaction model offers greater statistical power in many other scenarios, warning against mixing the two approaches in reporting—exactly the kind of nuanced guidance your paper aims to provide.
+https://link.springer.com/article/10.1186/s12874-026-02795-3
+How to use:
+You can cite Tsoi & Sun (2026) as a recent, closely related simulation study that compares interaction and stratified regression for detecting subgroup heterogeneity. Their findings on how subgroup imbalance, sample size, and covariate correlation affect Type I error and power directly inform your simulation design. Specifically, you can adopt their simulation factors (subgroup proportions varying from 10–90%, small vs. large total sample, baseline coefficient heterogeneity) and use their results as a benchmark for your own metrics—sign stability, coefficient drift, and prediction gap. For instance, they show stratified regression fails in small, imbalanced subgroups (due to overfitting) while interaction regression fails when omitted baseline interactions correlate with the subgroup indicator—both observations help justify your choice to include a full interaction model (Model 3) and to examine transportability.
+In your introduction, position your paper as extending their work beyond a single treatment effect and beyond hypothesis testing. While Tsoi & Sun focus on detecting whether a treatment effect differs across subgroups, you ask broader questions: Are coefficient signs stable? How much do magnitudes drift? When does predictive performance survive transport even when interpretation does not? In your discussion, echo their warning against “hybrid reporting” (e.g., stratified point estimates with interaction p‑values), as your metrics will show that conclusions about stability depend heavily on the chosen model. Their empirical example (ISSP data) also provides a template for your real‑data case studies—demonstrating how interaction and stratified models can disagree, which you can link back to your simulation scenarios.
+
+
+Assumption-Lean Inference for Regression: Buja et al. (2024)
+confronts the instability of standard inference when a linear model is a convenient approximation rather than a true generative model. This echoes your goal of distinguishing when predictive performance remains acceptable even if coefficient interpretation changes. The paper shows how standard errors under model violations can be dramatically different from conventional ones, potentially leading to "the breakdown of the classical ancillarity argument for predictors."
+
+How to use and summary:
+Summary of the paper:
+Berk, Buja, Brown, George, Kuchibhotla, Su, and Zhao (2018) argue that standard regression models are almost always misspecified, and instead of pretending they are correct, we should treat OLS coefficients as best linear approximations to the true conditional mean function. Under this “assumption‑lean” view, the only requirements are i.i.d. sampling from a joint distribution of (Y,X); no linearity, homoskedasticity, or normality is assumed. The population coefficients minimize expected squared error, and the usual OLS estimates remain asymptotically unbiased and normal for that target. However, because the coefficients depend on the marginal distribution of the regressors (through the optimal approximation), they are not ancillary: if the X distribution shifts, the estimand itself changes. The paper provides sandwich and x-y bootstrap standard errors that are valid under misspecification, shows that predicted values at fixed x are biased (the bias does not vanish with sample size), but that prediction intervals can be calibrated on the training data to achieve correct coverage. It also offers a novel interpretation of slopes as distance‑weighted averages of pairwise slopes.
+Where and how to use it in your paper:
+In your introduction and literature review, cite this paper to justify your core premise: pooled regression coefficients are not “true” parameters but approximations that depend on the distribution of predictors. This frames your entire investigation of sign stability, coefficient drift, and transportability.
+In your methods section (covariate shift), refer to their Figure 2 (and surrounding discussion) to explain why the best linear approximation changes when the covariate distribution differs between subgroups – this is the theoretical reason your “transported prediction gap” and “standardized coefficient drift” can occur even if the underlying response surface is the same.
+In your simulation design, note that you treat regressors as random and drawn from subgroup‑specific distributions, aligning with their recommendation not to condition on regressors as fixed. You can also compare conventional standard errors to sandwich or bootstrap estimates in your results to show how misspecification affects inference.
+In your discussion, use their conclusion that “regressor variability must be included in treatments of the sampling distribution” to argue that analysts should always check subgroup differences in predictors when interpreting pooled coefficients. Their warning about causal inference under misspecification also helps you delimit the scope of your claims – you are not estimating causal effects, only describing associations that may not transport.
+
+

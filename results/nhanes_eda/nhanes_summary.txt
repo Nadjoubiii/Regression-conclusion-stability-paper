@@ -1,0 +1,12 @@
+NHANES EDA
+===========
+
+Rows: 10000
+Columns: 76
+Key variables available: 12 of 12
+
+Variable missingness:
+  Education  DirectChol     TotChol    BPSysAve    BPDiaAve HHIncomeMid 
+       2779        1526        1526        1449        1449         811 
+    Poverty         BMI    Diabetes         Age      Gender       Race1 
+        726         366         142           0           0           0 

@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+\title{Literature Notes for ``How Stable Are Regression Conclusions Across Subpopulations?''}
+\author{Your Name}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+These notes summarize key references for the project on coefficient stability across subpopulations. For each paper, I record the main findings and where it could be useful in the draft.
+
+\section{Stable Regression: On the Power of Optimization over Randomization}
+\textit{Source: JMLR, volume 21, paper 19-408 (not yet fully cited)} \\
+\textbf{Main finding:} \\
+Proposes a method to make regression coefficients stable across all subpopulations by optimizing worst-case performance over groups rather than averaging. Uses a min-max optimization framework (not randomization). Ensures coefficient sign and magnitude are robust to distribution shifts within a predefined set of possible test distributions. \\
+\textbf{Where to use in the draft:}
+\begin{itemize}
+    \item \textbf{Introduction:} As the closest conceptual match – my goal is also stability across subpopulations, but I focus on \emph{diagnosing} instability (metrics) rather than \emph{enforcing} stability via a specialized estimator.
+    \item \textbf{Discussion:} Mention as an honorable mention / alternative approach when stability is required by design (e.g., fairness, regulatory settings). Contrast with my empirical guidance for standard regression users.
+\end{itemize}
+\textbf{Status:} Need full citation (authors, year). Likely from JMLR 21(19-408) – possibly Meinshausen or Bühlmann.
+
+\section{Estimating Heterogeneous Treatment Effects with Observational Data}
+\textit{Source: not yet attached – likely Imbens, Athey, or Wager} \\
+\textbf{Main finding:} \\
+Reviews methods (propensity scores, matching, double ML, causal forests) to estimate how treatment effects vary across subpopulations using observational data. Emphasizes the importance of modeling effect heterogeneity rather than assuming constant effects. \\
+\textbf{Where to use in the draft:}
+\begin{itemize}
+    \item \textbf{Introduction / motivation:} To show that applied researchers already care about subgroup differences (treatment effect heterogeneity). My paper extends this to \emph{any} regression coefficient (not just treatment), and focuses on stability of signs/magnitudes/prediction.
+\end{itemize}
+\textbf{Status:} Need full citation. Candidates: Athey \& Imbens (2017), Wager \& Athey (2018), or a review paper.
+
+\section{An analysis of tests for regression coefficient stability}
+\textit{Source: classic paper (e.g., Chow test, Brown-Durbin-Evans)} \\
+\textbf{Main finding:} \\
+Tests whether coefficients stay constant across groups or time. Often assumes the alternative is a specific pattern (e.g., AR(1) process, or a single break). Not very flexible for arbitrary subgroup heterogeneity. \\
+\textbf{Where to use:}
+\begin{itemize}
+    \item \textbf{Introduction (briefly):} Note that traditional stability tests assume structured alternatives (e.g., AR(1)), whereas my paper examines arbitrary subgroup differences (known groups) using descriptive metrics.
+\end{itemize}
+\textbf{Status:} Not essential. Can skip or mention in passing.
+
+\section{Two Methods for Examining the Stability of Regression Coefficients (Garbade, 1977)}
+\textit{Source: Journal of the American Statistical Association, 1977} \\
+\textbf{Main finding:} \\
+Compares BDE cusum tests and Variable Parameter Regression (random walk coefficients) for temporal stability. Finds VPR more powerful. Focuses on \emph{time-ordered} data. \\
+\textbf{Where to use:}
+\begin{itemize}
+    \item \textbf{Introduction:} As an example of temporal stability literature. Clarify that my work is different – stability across \emph{subpopulations} (cross-sectional, known groups) not over time.
+\end{itemize}
+\textbf{Status:} Keep as a footnote or brief mention. Not central.
+
+\section{Interaction vs. Stratified Regression (Tsoi \& Sun, 2026)}
+\textit{Source: BMC Medical Research Methodology, 2026, \url{https://doi.org/10.1186/s12874-026-02795-3}} \\
+\textbf{Main finding:} \\
+Monte Carlo comparison of interaction regression (treatment $\times$ subgroup) and stratified regression (separate models). Stratified controls Type I error well in large, balanced samples; interaction has higher power but fails when baseline coefficients differ and covariates are correlated. Warns against mixing the two methods (e.g., stratified point estimates with interaction p-values). \\
+\textbf{Where to use:}
+\begin{itemize}
+    \item \textbf{Methods:} Adopt their simulation factors (subgroup proportions 10–90\%, small/large N, baseline coefficient heterogeneity, covariate correlation).
+    \item \textbf{Introduction:} Position my paper as extending beyond treatment effects to all regression coefficients, and beyond hypothesis testing to metrics (sign stability, coefficient drift, prediction gap, covariate shift).
+    \item \textbf{Discussion:} Echo their warning against hybrid reporting – my metrics will show similar inconsistencies.
+    \item \textbf{Real-data case studies:} Their ISSP example (fruit/veg and BMI) provides a template.
+\end{itemize}
+\textbf{Status:} Keep as a key reference. PDF available.
+
+\section{Assumption-Lean Regression (Berk, Buja, Brown, George, Kuchibhotla, Su, Zhao, 2018)}
+\textit{Source: arXiv:1806.08068 (or later version)} \\
+\textbf{Main finding:} \\
+OLS coefficients are best linear approximations to the true conditional mean, not ``true'' parameters. Under misspecification, coefficients depend on the marginal distribution of X (not ancillary). Standard errors from sandwich or x-y bootstrap are valid; conventional SEs fail. Prediction at fixed x is biased, but intervals can be calibrated. Slopes are distance-weighted averages of pairwise slopes (formula 7). \\
+\textbf{Where to use:}
+\begin{itemize}
+    \item \textbf{Introduction:} Justify the core premise – coefficients are not stable across subpopulations because X distributions differ.
+    \item \textbf{Methods (covariate shift):} Refer to Figure 2 to explain why best linear approximation changes when regressor distribution shifts → theoretical basis for coefficient drift and transported prediction gap.
+    \item \textbf{Simulation design:} Treat regressors as random from subgroup-specific distributions (aligns with their recommendation). Optionally compare conventional vs. sandwich standard errors.
+    \item \textbf{Discussion:} Cite ``regressor variability must be included in sampling distribution'' – argue analysts must check subgroup differences in predictors.
+\end{itemize}
+\textbf{Status:} Top-tier reference. PDF available.
+
+\section{Testing for Regression Coefficient Stability with a Stationary AR(1) ...}
+\textit{Source: not specified} \\
+\textbf{Main finding:} \\
+Another time-series stability paper assuming AR(1) coefficient evolution. \\
+\textbf{Where to use:}
+\begin{itemize}
+    \item \textbf{Introduction:} May note that this approach (structured time-series alternative) is not my focus.
+\end{itemize}
+\textbf{Status:} Irrelevant, skip.
+
+\section*{Summary of Use in Draft Sections}
+
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Draft Section} & \textbf{References to Use} \\
+\hline
+Introduction / Motivation & Berk et al. (assumption-lean), Tsoi \& Sun (model comparison), Stable Regression paper (conceptual match), Heterogeneous Treatment Effects (applied motivation) \\
+\hline
+Methods (simulation design) & Tsoi \& Sun (adopt factors), Berk et al. (random regressors, optional sandwich SEs) \\
+\hline
+Real-data case studies & Tsoi \& Sun (template from ISSP data) \\
+\hline
+Discussion & Tsoi \& Sun (warning against hybrid reporting), Berk et al. (regressor variability), Stable Regression (alternative approach) \\
+\hline
+\end{tabular}
+
+\section*{Missing Information to Retrieve}
+\begin{itemize}
+    \item Full citation (authors, year) for ``Stable Regression: On the Power of Optimization over Randomization'' (JMLR 21(19-408)).
+    \item Full citation for ``Estimating Heterogeneous Treatment Effects with Observational Data'' – likely Athey \& Imbens (2017) or similar.
+    \item Confirm whether the classic stability test paper (Chow, 1960; Brown-Durbin-Evans, 1975) is needed – probably not.
+\end{itemize}
+
+\end{document}

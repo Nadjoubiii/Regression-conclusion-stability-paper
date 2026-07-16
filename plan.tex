@@ -1,0 +1,355 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\title{\textbf{Project Plan and Paper Structure}\\
+How Stable Are Regression Conclusions Across Subpopulations?\\
+A Finite-Sample Empirical Study}
+\author{Draft planning document}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Working Title}
+\textbf{How Stable Are Regression Conclusions Across Subpopulations? A Finite-Sample Empirical Study}
+
+\section{Short Answer: Is a Literature Review Necessary?}
+Yes, but only a \textbf{small and focused} one.
+
+For this project, a long standalone literature review is probably unnecessary. A short review embedded in the introduction is enough if it does the following:
+\begin{enumerate}[label=(\arabic*)]
+    \item explains why pooled regression across heterogeneous groups can be misleading,
+    \item briefly connects the paper to existing work on subgroup heterogeneity, model transportability, and distribution shift,
+    \item identifies the gap your paper addresses,
+    \item clarifies your empirical contribution.
+\end{enumerate}
+
+A good target is roughly \textbf{3--6 paragraphs} in the introduction devoted to prior work and positioning.
+
+\section{Project Goal}
+The goal of this paper is to study how stable the conclusions of a pooled linear regression are across subpopulations in finite samples, and when subgroup-specific departures make that pooled view break down.
+
+More precisely, the paper asks:
+\begin{quote}
+When a linear regression model is fit on pooled data, how stable are the resulting conclusions---such as coefficient signs, coefficient magnitudes, and predictive performance---when checked against subgroup-specific fits and transported to other subgroups?
+\end{quote}
+
+The project will combine:
+\begin{itemize}
+    \item a controlled \textbf{simulation study}, and
+    \item a small number of \textbf{real-data case studies}.
+\end{itemize}
+
+\section{Core Research Questions}
+The paper will focus on the following questions:
+\begin{enumerate}[label=\textbf{RQ\arabic*.}]
+    \item Do coefficient \textbf{signs} remain stable across subpopulations?
+    \item How much do coefficient \textbf{magnitudes} drift across subpopulations?
+    \item When does a \textbf{pooled model} hide subgroup-specific relationships?
+    \item To what extent can \textbf{interaction models} recover subgroup heterogeneity?
+    \item How different is \textbf{predictive performance across groups} when a model is transported from one subgroup to another?
+\end{enumerate}
+
+\section{Main Working Hypothesis}
+The main hypothesis is:
+\begin{quote}
+Even when a pooled linear regression appears adequate in aggregate, the regression conclusions may be unstable across subpopulations due to subgroup heterogeneity in coefficient values, predictor distributions, and noise structure.
+\end{quote}
+
+A secondary hypothesis is:
+\begin{quote}
+Predictive performance may remain moderately stable even when coefficient interpretation is not, so predictive adequacy alone does not guarantee interpretive transportability.
+\end{quote}
+
+\section{Main Contribution}
+This paper is not intended to propose a new regression estimator. Instead, its contribution is primarily empirical and methodological.
+
+The intended contributions are:
+\begin{enumerate}[label=(\arabic*)]
+    \item a finite-sample empirical study of how a pooled regression behaves across subpopulations,
+    \item a comparison of a pooled baseline, subgroup-specific, and interaction-based models,
+    \item a small set of interpretable stability metrics,
+    \item practical guidance on when pooled regression conclusions should be treated with caution.
+\end{enumerate}
+
+\section{Proposed Stability Metrics}
+The study will use a small number of simple and interpretable metrics.
+
+\subsection{Sign Stability}
+For each predictor, compare the sign of the estimated coefficient across subgroups and with the pooled estimate.
+
+A simple summary metric can be:
+\[
+\text{Sign Stability Rate}_j
+=
+\frac{\#\{\text{comparisons where the sign agrees}\}}{\#\{\text{all relevant comparisons}\}}.
+\]
+
+\subsection{Standardized Coefficient Drift}
+For predictor $j$, compare subgroup-specific estimates with the pooled estimate:
+\[
+D_j = \max_g \left| \hat{\beta}_{j,g} - \hat{\beta}_{j,\mathrm{pooled}} \right|.
+\]
+
+Report the standardized drift
+\[
+D_j^{\star} = \frac{D_j}{\widehat{\mathrm{SE}}\!\left(\hat{\beta}_{j,\mathrm{pooled}}\right)}
+\]
+to make comparisons across predictors more interpretable.
+
+\subsection{Context-Normalized Drift}
+To interpret drift relative to subgroup mean separation, define a predictor-level mean-spread index:
+\[
+M_j = \frac{1}{\binom{G}{2}} \sum_{a<b} \frac{\left|\bar{x}_{j,a} - \bar{x}_{j,b}\right|}{s_{j,\mathrm{pooled}}}.
+\]
+Then report context-normalized drift:
+\[
+\widetilde{D}_j = \frac{D_j^{\star}}{1 + M_j}.
+\]
+This helps distinguish large drift due to strong coefficient instability from large drift that is partly expected under strong subgroup mean separation.
+
+\subsection{Transported Prediction Gap}
+Train a model on one subgroup and evaluate it on another subgroup. Report metrics such as RMSE or MAE. The gap in out-of-group performance will quantify loss of transportability.
+
+\subsection{Covariate Shift Summary}
+Quantify predictor distribution differences across groups using a compact summary, such as the average standardized mean difference across predictors. This provides context for when cross-group transport failures are likely.
+
+\section{Models to Compare}
+The paper will compare the following models:
+
+\subsection*{Model 1: Pooled OLS}
+\[
+Y = \beta_0 + X^\top \beta + \varepsilon.
+\]
+
+\subsection*{Model 2: Pooled OLS with Group Indicator}
+\[
+Y = \beta_0 + X^\top \beta + \gamma G + \varepsilon.
+\]
+
+\subsection*{Model 3: Pooled OLS with Group Interactions}
+\[
+Y = \beta_0 + X^\top \beta + \gamma G + X^\top \delta G + \varepsilon.
+\]
+
+\subsection*{Model 4: Subgroup-Specific OLS}
+A separate linear regression will be fit within each subgroup.
+
+Optional extensions such as ridge or lasso may be considered only if time permits, but they are not central to the project.
+
+\section{Simulation Study}
+The simulation study is the core of the paper.
+
+\subsection{Basic Setup}
+Generate data for $G$ subgroups, each with predictors and response
+\[
+X_g \sim \mathcal{N}(\mu_g, \Sigma_g), \qquad
+Y_g = \beta_{0,g} + X_g^\top \beta_g + \varepsilon_g,
+\]
+where
+\[
+\varepsilon_g \sim \mathcal{N}(0, \sigma_g^2).
+\]
+
+\subsection{Simulation Scenarios}
+The study will consider a small number of scenarios:
+
+\begin{enumerate}[label=\textbf{S\arabic*.}]
+    \item \textbf{No heterogeneity:} same coefficients, same predictor distribution, same noise across groups.
+    \item \textbf{Covariate shift only:} same coefficients, different predictor distributions across groups.
+    \item \textbf{Coefficient heterogeneity only:} different coefficients, same predictor distributions.
+    \item \textbf{Combined heterogeneity:} different coefficients and different predictor distributions.
+\end{enumerate}
+
+If time allows, one additional scenario may be added with different noise levels across subgroups.
+
+\subsection{Simulation Factors}
+The simulation will vary a small set of factors:
+\begin{itemize}
+    \item sample size,
+    \item number of predictors,
+    \item degree of collinearity,
+    \item signal-to-noise ratio,
+    \item subgroup balance.
+\end{itemize}
+
+\subsection{Simulation Outputs}
+For each replicate, the study will record:
+\begin{itemize}
+    \item estimated coefficients,
+    \item coefficient signs,
+    \item standard errors and confidence intervals,
+    \item predictive performance within and across groups,
+    \item interaction detection behavior.
+\end{itemize}
+
+\section{Real-Data Case Studies}
+The empirical section should remain small and focused. Two or three real datasets are enough.
+
+Desired dataset properties:
+\begin{itemize}
+    \item continuous response variable,
+    \item at least one clear subgroup variable,
+    \item multiple predictors,
+    \item manageable missingness and preprocessing requirements,
+    \item interpretable context.
+\end{itemize}
+
+Examples of subgroup variables include sex, age category, hospital/site, region, cohort, or socioeconomic category.
+
+The purpose of the real-data section is not to establish universal truth, but to illustrate the practical relevance of the simulation findings.
+
+\section{Why This Topic Matters}
+This project matters for at least three reasons:
+\begin{enumerate}[label=(\arabic*)]
+    \item In applied work, analysts often fit a single pooled regression and interpret the coefficients as if they represented one stable relationship.
+    \item In reality, subgroup heterogeneity may make such interpretations unreliable, even when the overall fit looks acceptable.
+    \item In many practical settings, predictive performance alone is not enough; analysts also care about whether the sign and size of an effect are stable across contexts.
+\end{enumerate}
+
+\section{Mini Literature Review}
+This review should be short and functional, not exhaustive.
+
+\subsection{Suggested Themes to Cover}
+The literature discussion in the introduction should briefly cover the following themes:
+
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{Classical regression and heterogeneity.}  
+    Standard linear regression often assumes a common linear relationship across observations unless interactions or stratification are introduced.
+
+    \item \textbf{Subgroup effects and interaction modeling.}  
+    It is well known that subgroup-specific relationships may be masked in pooled analyses, and interaction terms are a natural way to represent effect heterogeneity.
+
+    \item \textbf{Transportability and distribution shift.}  
+    Modern statistics and machine learning increasingly study how model conclusions and predictive performance change under population shift or domain shift.
+
+    \item \textbf{Interpretation versus prediction.}  
+    A model may predict reasonably well across groups while still producing unstable or misleading coefficient interpretations.
+
+    \item \textbf{Gap addressed by this paper.}  
+    Much of the existing literature is either broad and theoretical, or focused on general distribution shift. This paper instead gives a narrow finite-sample empirical study centered specifically on the stability of regression conclusions across subpopulations.
+\end{enumerate}
+
+\subsection{What the Literature Review Should \emph{Not} Try to Do}
+Do not try to:
+\begin{itemize}
+    \item survey all of domain adaptation or all of distribution shift,
+    \item review all heterogeneity modeling methods,
+    \item make the paper look theoretical if it is mainly empirical,
+    \item overclaim novelty by pretending no related work exists.
+\end{itemize}
+
+\section{Proposed Paper Structure}
+
+\subsection*{1. Introduction}
+This section should:
+\begin{itemize}
+    \item motivate the problem,
+    \item explain why pooled regression may be misleading across subpopulations,
+    \item provide a short literature review,
+    \item identify the paper's gap,
+    \item state the paper's contributions.
+\end{itemize}
+
+\subsection*{2. Methods}
+This section should define:
+\begin{itemize}
+    \item notation,
+    \item subgroup setting,
+    \item models being compared,
+    \item stability metrics,
+    \item simulation design,
+    \item evaluation protocol for real data.
+\end{itemize}
+
+\subsection*{3. Simulation Study}
+This section should present:
+\begin{itemize}
+    \item scenario definitions,
+    \item simulation setup,
+    \item main figures and tables,
+    \item interpretation of the observed instability patterns.
+\end{itemize}
+
+\subsection*{4. Real-Data Case Studies}
+This section should:
+\begin{itemize}
+    \item describe the selected datasets,
+    \item define subgroup variables,
+    \item compare pooled and subgroup-aware models,
+    \item connect the findings back to the simulation results.
+\end{itemize}
+
+\subsection*{5. Discussion}
+This section should:
+\begin{itemize}
+    \item summarize the main findings,
+    \item explain practical implications,
+    \item discuss limitations,
+    \item suggest future extensions.
+\end{itemize}
+
+\subsection*{6. Conclusion}
+This should be short and direct.
+
+\section{Practical Goals for the Project}
+The project should aim to produce the following:
+
+\begin{enumerate}[label=\textbf{G\arabic*.}]
+    \item A reproducible simulation pipeline in R.
+    \item A clear set of 3--5 main figures.
+    \item A small number of interpretable summary tables.
+    \item Two strong real-data illustrations.
+    \item A paper draft that is concise, coherent, and clearly positioned.
+\end{enumerate}
+
+\section{What to Prioritize}
+If time becomes limited, prioritize in this order:
+\begin{enumerate}[label=(\arabic*)]
+    \item simulation study,
+    \item clear metrics,
+    \item good figures,
+    \item concise writing,
+    \item real-data illustrations,
+    \item optional extensions.
+\end{enumerate}
+
+\section{What to Avoid}
+To keep the project publishable and finishable, avoid:
+\begin{itemize}
+    \item too many models,
+    \item too many datasets,
+    \item unnecessary deep learning baselines,
+    \item excessive theory,
+    \item broad claims about causality,
+    \item trying to solve all of distribution shift.
+\end{itemize}
+
+\section{Minimal Viable Version of the Paper}
+If the project must be compressed, the minimum viable paper is:
+\begin{itemize}
+    \item one clear introduction with a short literature review,
+    \item one methods section,
+    \item one simulation section with 4 scenarios,
+    \item one real-data section with 2 datasets,
+    \item one discussion/conclusion section.
+\end{itemize}
+
+\section{Final Recommendation}
+Yes, include a literature review, but make it \textbf{short, focused, and embedded in the introduction}. For this paper, the strongest version is not one with the longest review, but one with:
+\begin{itemize}
+    \item a precise question,
+    \item a clean simulation design,
+    \item strong figures,
+    \item a credible gap statement,
+    \item and disciplined scope.
+\end{itemize}
+
+\end{document}

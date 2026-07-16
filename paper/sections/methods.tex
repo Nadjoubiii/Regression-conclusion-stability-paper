@@ -1,0 +1,100 @@
+\section{Methods}\label{sec:methods}
+
+We consider a response $Y$, predictors $X \in \mathbb{R}^p$, and subgroups indexed by $g \in \{1,\dots,G\}$. Let $n_g$ denote the sample size in subgroup $g$, and let $\hat{\beta}_{j,g}$ denote the estimated coefficient for predictor $j$ in subgroup $g$. The pooled estimate is denoted by $\hat{\beta}_{j,\mathrm{pooled}}$.
+
+The goal of the Methods section is not to introduce a new estimator. Instead, it sets up a simple comparison framework for asking when a pooled linear regression remains stable across subpopulations, and when it breaks down. We treat the pooled model as the baseline and then examine subgroup-specific departures using five quantities: sign stability, standardized coefficient drift, context-normalized drift, transported prediction gap, and a summary of covariate shift.
+
+\subsection{Core Stability Metrics}
+
+Table~\ref{tab:core-metrics} summarizes the five primary metrics used in the paper.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.3}
+\caption{Core stability metrics used in the study}
+\label{tab:core-metrics}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Metric} & \textbf{Formula} & \textbf{Interpretation} \\
+\midrule
+Sign stability rate (predictor $j$)
+&
+$I_{j,m}=\mathbf{1}(\mathrm{sgn}\,\hat{\beta}_{j,a_m}=\mathrm{sgn}\,\hat{\beta}_{j,b_m})$,\; $\mathrm{SSR}_j=\frac{1}{M}\sum_{m=1}^{M} I_{j,m}$.
+&
+Proportion of comparisons with the same effect direction. \\[10pt]
+
+Standardized coefficient drift (predictor $j$)
+&
+$D_j = \max_g \left|\hat{\beta}_{j,g} - \hat{\beta}_{j,\mathrm{pooled}}\right|$, \; $D_j^{\star} = D_j / \widehat{\mathrm{SE}}\!\left(\hat{\beta}_{j,\mathrm{pooled}}\right)$.
+&
+Largest subgroup departure from pooled effect, scaled for cross-predictor comparability. \\[10pt]
+
+Context-normalized drift (predictor $j$)
+&
+$M_j = \frac{1}{\binom{G}{2}}\sum_{a<b} \frac{|\bar{x}_{j,a} - \bar{x}_{j,b}|}{s_{j,\mathrm{pooled}}}$, \;
+$\widetilde{D}_j = \frac{D_j^{\star}}{1 + M_j}$.
+&
+Coefficient drift scaled by subgroup mean separation, so large drift is interpreted relative to observed covariate spread. \\[10pt]
+
+Transported prediction gap ($a \to b$)
+&
+$\mathrm{TPG}_{a \to b} = \mathrm{RMSE}_{a \to b} - \mathrm{RMSE}_{a \to a}$ (analogously for MAE).
+&
+Out-of-group performance loss relative to in-group performance. \\[10pt]
+
+Covariate shift summary between groups $a$ and $b$
+&
+$\mathrm{CSS}_{a,b} = \frac{1}{p} \sum_{j=1}^{p} \frac{\left|\bar{x}_{j,a} - \bar{x}_{j,b}\right|}{s_{j,\mathrm{pooled}}}$.
+&
+Average standardized difference in predictor distributions across groups. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+In $\mathrm{SSR}_j$, each pair $(a_m,b_m)$ is a selected subgroup or pooled-vs-subgroup comparison.
+
+Higher values of $D_j^{\star}$, $\widetilde{D}_j$, $\mathrm{TPG}_{a \to b}$, and $\mathrm{CSS}_{a,b}$ indicate greater instability or mismatch, while higher $\mathrm{SSR}_j$ indicates greater directional stability.
+
+\subsection{Regression Models Compared}
+
+For each dataset or simulated replicate, we compare four linear regression specifications. The first is the pooled model,
+\[
+Y = \beta_0 + X^\top \beta + \varepsilon,
+\]
+which imposes a single coefficient vector across all subgroups. The second adds a group indicator,
+\[
+Y = \beta_0 + X^\top \beta + \gamma G + \varepsilon,
+\]
+which allows subgroup-specific intercept shifts but keeps slopes common. The third adds interactions,
+\[
+Y = \beta_0 + X^\top \beta + \gamma G + X^\top \delta G + \varepsilon,
+\]
+which allows the slope coefficients to vary by subgroup. The fourth fits separate subgroup-specific OLS models, so that each group has its own intercept and slope vector.
+
+This comparison is intentionally simple. It lets us isolate whether instability arises from the pooled structure itself, from slope heterogeneity, or from changes in the predictor distribution across groups.
+
+\subsection{Simulation Design}
+
+The simulation study begins from a pooled baseline and then introduces subgroup structure as a stress test. We vary four main ingredients: subgroup balance, sample size, predictor correlation, and the type of heterogeneity present. For subgroup balance, we consider both roughly equal group sizes and imbalanced settings where one group is much smaller than the others. For sample size, we use small and moderate samples to see how much apparent instability is driven by finite-sample noise. For predictor correlation, we vary the degree of collinearity so that coefficient estimates are not artificially easy to separate.
+
+The baseline scenario is generated from a single global linear model, so all subgroups follow the same regression rule. The remaining scenarios add subgroup structure by allowing predictor distributions, coefficients, or both to vary by group. This lets us compare a setting where the pooled model should work well against settings where the pooled model is only an approximation.
+
+We study four scenarios. In the no-heterogeneity scenario, all groups share the same regression coefficients, predictor distribution, and noise level. In the covariate-shift scenario, the coefficients stay fixed but the predictor distribution changes across groups. In the coefficient-heterogeneity scenario, the coefficients differ across groups while the predictor distribution is held fixed. In the combined scenario, both the coefficients and the predictor distribution vary across groups.
+
+For each replicate, we generate the data, fit all four models, and record coefficient estimates, standard errors, signs, and prediction errors. Prediction is evaluated both within-group and across groups. This is important because the paper is not only asking whether coefficients change, but also whether a pooled model that appears acceptable overall continues to predict well in each subgroup.
+
+The simulation outputs are summarized at the replicate level and then aggregated across replicates to compute the stability metrics above. This makes it possible to compare how often sign reversals occur, how far subgroup coefficients drift from the pooled estimate, and how much predictive error increases under transport.
+
+\subsection{Real-Data Workflow}
+
+The real-data analysis follows the same logic as the simulations. For each dataset, we identify a continuous response, a clear subgroup variable, and a moderate set of predictors. After basic cleaning and preprocessing, we first fit the pooled regression as the baseline. We then fit the same four regression specifications used in the simulation study and compare pooled, interaction-based, and subgroup-specific estimates, along with in-group and out-of-group prediction performance.
+
+The purpose of the real-data section is not to claim universal generalization. Rather, it is to show how the stability metrics behave in applied settings where subgroup structure is present but not controlled by the analyst. The real-data examples should therefore be interpreted as illustrations of the same mechanisms studied in simulation: coefficient instability, covariate shift, and transport failure.
+
+\subsection{How the Metrics Are Used}
+
+The five metrics play different roles in the analysis. Sign stability is the most direct measure of whether substantive conclusions reverse across subgroups. Standardized coefficient drift measures how far subgroup estimates move away from the pooled estimate on a comparable scale. Context-normalized drift scales that movement by observed subgroup covariate separation. The transported prediction gap measures whether predictive performance deteriorates when a pooled model or subgroup model is moved from one group to another. Finally, the covariate shift summary provides a simple explanation for why transfer may fail.
+
+Taken together, these metrics separate interpretive instability from predictive instability. That distinction is central to the paper, because a model may remain useful for prediction even when its coefficients are not stable enough for interpretation.
