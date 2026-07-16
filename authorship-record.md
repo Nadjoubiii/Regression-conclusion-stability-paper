@@ -73,7 +73,14 @@ This file tracks which ideas, claims, and decisions originated with the research
 | Expansion of `evaluate_setting` to all 5 metrics | **Researcher** | Researcher directed; AI implemented |
 | Standard deviation and 95% CI columns in grid output | **Researcher** | Researcher directed; AI implemented |
 | NA-replicate filtering in `evaluate_setting` | **AI** | Safety feature to avoid corrupted aggregate metrics
+## 2026-07-16 Grid Run
 
+| Item | Origin | Notes |
+|------|--------|-------|
+| Infinite-loop bug fix in `make_group_sizes` | **AI** | Researcher reported crash; AI diagnosed and fixed the `max(val-1,5)` guard |
+| Degenerate-settings diagnosis ($G=40, n=100, \min\_n=2$ skewing means) | **AI** | Researcher asked why mild drift looked wrong; AI identified the 6 outlier rows |
+| Decision to use medians or filter $\min\_n < 3$ for paper aggregates | **AI** | Researcher approved |
+| GitHub repo initialization and push | **AI** | Researcher provided repo link; AI executed git commands |
 ---
 
 ## Session Maintenance and Admin
