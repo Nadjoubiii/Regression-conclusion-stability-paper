@@ -92,7 +92,8 @@ This file tracks which ideas, claims, and decisions originated with the research
 | OLS variance derivation for drift decomposition | **AI** | Standard result, used for exposition |
 | A0 research poster (`paper/poster.tex`, `poster.pdf`) | **AI** | AI designed layout, wrote content, created tikz diagrams, and compiled; researcher can modify before use |
 | Simpson's paradox tikz diagram in poster | **AI** | Custom tikz drawing |
-| "It's an Artifact" 3-panel meme flow in poster | **AI** | Designed as pedagogical hook; uses `mwe` package example images |
+| "It's an Artifact" 3-panel meme flow in poster | **AI** | Designed as pedagogical hook; originally used `mwe` package, later replaced with text-only version |
+| Poster redesign (layout fix, Simpson image, reorder, shorten text, future-work block) | **AI** | Redesign directed by user feedback; all changes AI-implemented |
 
 ## Session Maintenance and Admin
 

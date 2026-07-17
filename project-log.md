@@ -156,6 +156,7 @@ One entry per working session. Add a bullet for each meaningful thing done, deci
 - Designed and compiled an **A0 landscape research poster** (`paper/poster.tex` $\to$ `poster.pdf`, 251 KB, 0 errors):
   - 3-column layout with 11 blocks covering: problem hook, Simpson's paradox diagram, "It's an Artifact" 3-panel meme, four models table, five metrics table with formulas, decomposition equation with OLS derivation, simulation grid with embedded plots, NHANES real-data results with coefficient CI plot, driver diagram (5 factors $\to$ instability), take-home messages, and references.
   - Visual elements include custom tikz diagrams for Simpson's paradox and causal drivers, 3-panel meme flow, highlighted equation box, and two embedded simulation plots.
+- Redesigned poster per user feedback: replaced Simpson's tikz with actual image (`simpson.jpg`), fixed overlapping meme boxes, shortened text, reordered content (real-data evidence before metrics/simulation as proof of need), added future-work block (collinearity $\to$ higher dimensions $\to$ different models). Removed `mwe`-package dependency.
 
 **Decisions made:**
 - Context normalization decomposition is a core contribution and should drive the simulation section narrative.
