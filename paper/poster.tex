@@ -6,6 +6,7 @@
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{tikz}
+\usetikzlibrary{positioning}
 
 \definecolor{DarkBlue}{HTML}{1B2A4A}
 \definecolor{AccentOrange}{HTML}{E8752A}
@@ -19,7 +20,7 @@
 
 % Custom block style: like Default but with thinner border, smaller rounding
 \defineblockstyle{Clean}{
-    titlewidthscale=0.95, bodywidthscale=1, titlecenter,
+    titlewidthscale=1, bodywidthscale=1.1, titlecenter,
     titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
     bodyverticalshift=0pt, roundedcorners=8, linewidth=0.08cm,
     titleinnersep=0.7cm, bodyinnersep=0.8cm
@@ -67,21 +68,21 @@
 
 \block{``It's an Artifact''}{
   \begin{center}
-    \begin{tikzpicture}[every node/.style={align=center}]
+    \begin{tikzpicture}[every node/.style={align=center, font=\small}]
       \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=4pt,
-            inner sep=6pt, text width=0.25\linewidth] (A) at (0,0) {
+            inner sep=5pt, minimum width=0.22\linewidth] (A) {
             ``The coefficients differ\\across groups!''
           };
       \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=4pt,
-            inner sep=6pt, text width=0.25\linewidth] (B) at (5,0) {
+            inner sep=5pt, minimum width=0.22\linewidth, below=1.2cm of A] (B) {
             ``Genuine heterogeneity.\\Model doesn't transport.''
           };
       \node[draw=AccentTeal!70, fill=AccentTeal!8, rounded corners=4pt,
-            inner sep=6pt, text width=0.28\linewidth] (C) at (10,0) {
+            inner sep=5pt, minimum width=0.22\linewidth, below=1.2cm of B] (C) {
             \color{AccentTeal}``Wait --- different $X$\\ distributions cause\\most of the drift.''
           };
-      \draw[->, DarkBlue!40, line width=1pt] (A.east) -- (B.west);
-      \draw[->, DarkBlue!40, line width=1pt] (B.east) -- (C.west);
+      \draw[->, DarkBlue!40, line width=1pt] (A.south) -- (B.north);
+      \draw[->, DarkBlue!40, line width=1pt] (B.south) -- (C.north);
     \end{tikzpicture}
   \end{center}
   Coefficient differences come from \textbf{two sources}: genuine heterogeneity and mechanical artifacts from covariate distribution differences. Standard practice conflates them.
@@ -91,26 +92,25 @@
 %% CENTER COLUMN (0.40)
 \column{0.40}
 
-\block{Real-Data Evidence: NHANES Blood Pressure}{
-  \textbf{Data:} NHANES 2017--2018 ($n=9{,}254$), systolic BP response, age-decade subgroups.
-  Predictors: BMI, waist circumference, total cholesterol, HDL.
+\block{Real-Data: NHANES BPSysAve}{
+  \textbf{NHANES 2017--2018} ($n=9{,}254$). Response: systolic BP.
+  Subgroups: age decades. Focus predictor: BPSysAve.
 
   \begin{center}
-    \includegraphics[width=0.85\linewidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}
+    \includegraphics[width=0.7\linewidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}
   \end{center}
 
-  \begin{tabular}{@{}lrr@{}}
+  \begin{tabular}{@{}lr@{}}
     \toprule
     \textbf{Metric} & \textbf{Value} \\
     \midrule
-    SSR (all predictors)     & 0.57 \\
-    Max standardized drift   & 32.07 (BPSysAve) \\
-    Context-norm.\ drift     & 7.49 (BPSysAve) \\
-    Avg.\ CSS (pairwise)     & 0.28 \\
+    SSR (BPSysAve)      & 0.57 \\
+    Std.\ drift         & 32.07 \\
+    Context-norm.\ drift & 7.49 \\
     \bottomrule
   \end{tabular}
 
-  \textbf{Key finding:} Waist circumference's effect on BP \textit{reverses sign} in older groups. Drift 32$\to$7.5 after context normalization, confirming genuine heterogeneity.
+  \textbf{Key finding:} Effect \textit{reverses sign} in older groups. Drift 32$\to$7.5 after context normalization, confirming genuine heterogeneity.
 }
 
 \block{Five Stability Metrics}{
