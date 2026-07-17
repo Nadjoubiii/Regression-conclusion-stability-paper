@@ -16,10 +16,9 @@
 \colorlet{blockbodybgcolor}{white}
 \colorlet{blockbodyfgcolor}{black}
 
-
 \usetheme{Default}
 \usetitlestyle{Default}
-\useblockstyle{Default}
+\useblockstyle{Slide}
 
 \title{\shortstack{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\[2mm] \large A Finite-Sample Empirical Study}}
 \titlegraphic{\includegraphics[height=2.5cm]{AUB_Main_Horizontal_RGB.pdf}}
@@ -34,11 +33,8 @@
 \column{0.30}
 
 \block{The Problem}{
-  \small
   You fit a regression on the full dataset. $R^2$ is fine, p-values are small.
   A reviewer asks: \textit{``Does this hold for each subgroup?''}
-
-  \vspace{2pt}
   \begin{center}
     \textbf{You check. It doesn't. Now what?}
   \end{center}
@@ -48,14 +44,12 @@
   \begin{center}
     \includegraphics[width=0.85\linewidth]{simpson.jpg}
   \end{center}
-  \small
   Within each group the trend is positive. Pooled, it reverses. The pooled regression hides subgroup structure.
 }
 
 \block{``It's an Artifact''}{
-  \small
   \begin{center}
-    \begin{tikzpicture}[every node/.style={align=center, font=\small}]
+    \begin{tikzpicture}[every node/.style={align=center}]
       \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=4pt,
             inner sep=6pt, text width=0.25\linewidth] (A) at (0,0) {
             ``The coefficients differ\\across groups!''
@@ -72,7 +66,6 @@
       \draw[->, DarkBlue!40, line width=1pt] (B.east) -- (C.west);
     \end{tikzpicture}
   \end{center}
-  \vspace{2pt}
   Coefficient differences come from \textbf{two sources}: genuine heterogeneity and mechanical artifacts from covariate distribution differences. Standard practice conflates them.
 }
 
@@ -81,11 +74,9 @@
 \column{0.40}
 
 \block{Real-Data Evidence: NHANES Blood Pressure}{
-  \small
   \textbf{Data:} NHANES 2017--2018 ($n=9{,}254$), systolic BP response, age-decade subgroups.
   Predictors: BMI, waist circumference, total cholesterol, HDL.
 
-  \vspace{2pt}
   \begin{center}
     \includegraphics[width=0.85\linewidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}
   \end{center}
@@ -101,13 +92,11 @@
     \bottomrule
   \end{tabular}
 
-  \vspace{2pt}
   \textbf{Key finding:} Waist circumference's effect on BP \textit{reverses sign} in older groups. Drift 32$\to$7.5 after context normalization, confirming genuine heterogeneity.
 }
 
 \block{Five Stability Metrics}{
-  \footnotesize
-  \begin{tabular}{@{}p{0.17\linewidth} p{0.37\linewidth} p{0.40\linewidth}@{}}
+  \begin{tabular}{@{}p{0.15\linewidth} p{0.38\linewidth} p{0.40\linewidth}@{}}
     \toprule
     \textbf{Metric} & \textbf{Definition} & \textbf{What it captures} \\
     \midrule
@@ -136,19 +125,14 @@
 }
 
 \block{Key Decomposition: Why Context Drift $<$ Raw Drift}{
-  \small
   Even with identical $\beta$, different $X$ distributions inflate drift:
   \[
     \hat\beta^{(g)} - \hat\beta^{(\text{pooled})} = (X_g'X_g)^{-1}X_g'\varepsilon_g - (X'X)^{-1}X'\varepsilon
   \]
-  \vspace{2pt}
   \begin{center}
-    \colorbox{DarkBlue!5}{%
-      $D_j^\star \;=\; \widetilde{D}_j \;\times\; (1 + M_j)$}%
-    \par
+    \colorbox{DarkBlue!5}{$D_j^\star \;=\; \widetilde{D}_j \;\times\; (1 + M_j)$}\\[2pt]
     {\footnotesize Total = Genuine $\times$ Mechanical}
   \end{center}
-  \vspace{2pt}
   3 regimes: $M_j\approx 0 \Rightarrow$ all drift real; large $M_j$ + small $\widetilde{D}_j \Rightarrow$ artifact; both large $\Rightarrow$ genuine heterogeneity.
 }
 
@@ -156,37 +140,25 @@
 %% ═══════════════════════════════════════ RIGHT COLUMN (0.30)
 \column{0.30}
 
-\block{Four Models}{
-  \small
-  \begin{tabular}{@{}cl@{}}
-    \toprule
-    \textbf{Model} & \textbf{Specification} \\
-    \midrule
-    M1 (Pooled)     & $Y = \beta_0 + X^\top\beta + \varepsilon$ \\
-    M2 (Intercept)  & $+ \gamma G$ \\
-    M3 (Interaction)& $+ \gamma G + X^\top\delta G$ \\
-    M4 (Separate)   & Coeffs per group \\
-    \bottomrule
-  \end{tabular}
-  \vspace{2pt}
-  Isolates: intercept shift $\to$ slope heterogeneity $\to$ full subgroup structure.
+\block{Four Models (nested)}{
+  M1: pooled $Y = \beta_0 + X^\top\beta + \varepsilon$\\
+  M2: add group intercept $\gamma G$\\
+  M3: add interactions $X^\top\delta G$\\
+  M4: fully separate model per group
 }
 
 \block{Simulation Grid (Scenario 1)}{
-  \small
   \textbf{140 settings:} $G \in \{3,5,10,20,40\}$, $n \in \{100,\dots,30000\}$,
   4 imbalance patterns (balanced, mild, strong, Dirichlet-random). 200 reps each.
 
-  \vspace{2pt}
   \begin{center}
     \includegraphics[width=0.47\linewidth]{../results/simulation/drift_by_G_and_pattern.png}\hfill
     \includegraphics[width=0.47\linewidth]{../results/simulation/context_vs_raw_drift.png}
   \end{center}
-  {\tiny Drift grows with $G$ and imbalance (left). Context normalization shrinks drift (right).}
+  Drift grows with $G$ and imbalance (left). Context normalization shrinks drift (right).
 }
 
 \block{What Drives Instability?}{
-  \small
   \begin{itemize}[leftmargin=*, itemsep=2pt]
     \item Drift driven by $G$ and per-group $n$, not total $N$.
     \item Strong/random imbalance amplifies drift 2--4$\times$ over balanced.
@@ -196,7 +168,6 @@
 }
 
 \block{Future Work}{
-  \small
   Same analysis for Scenarios 2--4, then:
   \begin{enumerate}[leftmargin=*, itemsep=2pt]
     \item Introduce \textbf{collinearity} across predictors
@@ -206,10 +177,9 @@
 }
 
 \block{References}{
-  \tiny
+  \scriptsize
   Berk et al.\ (2019); Tsoi et al.\ (2026); Bertsimas \& Paskov (2020);
   Liu et al.\ (2020); Watson \& Engle (1985); Garbade (1977); Buja et al.\ (2006).
-  \vspace{2pt}
   \hfill {\tiny \texttt{github.com/Nadjoubiii/Regression-conclusion-stability-paper}}
 }
 
