@@ -20,7 +20,7 @@
 
 % Custom block style: like Default but with thinner border, smaller rounding
 \defineblockstyle{Clean}{
-    titlewidthscale=1, bodywidthscale=1.1, titlecenter,
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
     titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
     bodyverticalshift=0pt, roundedcorners=8, linewidth=0.08cm,
     titleinnersep=0.7cm, bodyinnersep=0.8cm
@@ -37,11 +37,28 @@
 
 \usetheme{Default}
 \usetitlestyle{Default}
-\useblockstyle{Clean}
 
-\title{\shortstack{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\[2mm] \large A Finite-Sample Empirical Study}}
-\titlegraphic{\includegraphics[height=2.5cm]{AUB_Main_Horizontal_RGB.pdf}}
-\author{[Authors] -- Department of Statistics -- July 2026}
+% Put the logo to the left of the title
+\makeatletter
+\renewcommand{\TP@maketitle}{%
+  \centering
+  \vbox{%
+    \begin{minipage}[c]{0.3\linewidth}
+      \raggedleft
+      \includegraphics[height=5cm]{AUB_Main_Horizontal_RGB.pdf}
+    \end{minipage}
+    \hspace{0.05\linewidth}
+    \begin{minipage}[c]{0.6\linewidth}
+      \centering
+      \color{titlefgcolor}
+      {\bfseries \Huge \sc \shortstack{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\[2mm] \large A Finite-Sample Empirical Study} \par}
+      \vspace*{1em}
+      {\huge [Authors] -- Department of Statistics -- July 2026 \par}
+    \end{minipage}
+  }%
+}
+\makeatother
+\useblockstyle{Clean}
 
 \begin{document}
 \maketitle
