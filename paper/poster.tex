@@ -5,6 +5,7 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{enumitem}
+\usepackage{tikz}
 
 \definecolor{DarkBlue}{HTML}{1B2A4A}
 \definecolor{AccentOrange}{HTML}{E8752A}
@@ -16,9 +17,26 @@
 \colorlet{blockbodybgcolor}{white}
 \colorlet{blockbodyfgcolor}{black}
 
+% Custom block style: like Default but with thinner border, smaller rounding
+\defineblockstyle{Clean}{
+    titlewidthscale=0.95, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=8, linewidth=0.08cm,
+    titleinnersep=0.7cm, bodyinnersep=0.8cm
+}{
+    \begin{scope}[line width=\blocklinewidth, rounded corners=\blockroundedcorners]
+        \ifBlockHasTitle
+           \draw[color=blocktitlebgcolor, fill=blocktitlebgcolor] (blockbody.south west) rectangle (blocktitle.north east);
+           \draw[color=blocktitlebgcolor, fill=blockbodybgcolor] (blockbody.south west) rectangle (blockbody.north east);
+        \else
+           \draw[color=blocktitlebgcolor, fill=blockbodybgcolor] (blockbody.south west) rectangle (blockbody.north east);
+        \fi
+    \end{scope}
+}
+
 \usetheme{Default}
 \usetitlestyle{Default}
-\useblockstyle{Minimal}
+\useblockstyle{Clean}
 
 \title{\shortstack{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\[2mm] \large A Finite-Sample Empirical Study}}
 \titlegraphic{\includegraphics[height=2.5cm]{AUB_Main_Horizontal_RGB.pdf}}
@@ -29,7 +47,7 @@
 
 \begin{columns}
 
-%% ═══════════════════════════════════════ LEFT COLUMN (0.30)
+%% LEFT COLUMN (0.30)
 \column{0.30}
 
 \block{The Problem}{
@@ -70,7 +88,7 @@
 }
 
 
-%% ═══════════════════════════════════════ CENTER COLUMN (0.40)
+%% CENTER COLUMN (0.40)
 \column{0.40}
 
 \block{Real-Data Evidence: NHANES Blood Pressure}{
@@ -137,7 +155,7 @@
 }
 
 
-%% ═══════════════════════════════════════ RIGHT COLUMN (0.30)
+%% RIGHT COLUMN (0.30)
 \column{0.30}
 
 \block{Four Models (nested)}{
