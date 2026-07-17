@@ -1,0 +1,338 @@
+\documentclass[25pt, a0paper, landscape, margin=15mm, innermargin=15mm, blockverticalspace=10mm]{tikzposter}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{mwe}
+
+\usetikzlibrary{arrows.meta, shapes, positioning, backgrounds, fit, calc}
+
+% ── Colour palette ──
+\definecolor{DarkBlue}{HTML}{1B2A4A}
+\definecolor{AccentOrange}{HTML}{E8752A}
+\definecolor{AccentTeal}{HTML}{0F9B8E}
+\definecolor{LightGray}{HTML}{F5F5F5}
+\definecolor{AlertRed}{HTML}{C0392B}
+
+% ── Theme tweaks ──
+\colorlet{blocktitlebgcolor}{DarkBlue}
+\colorlet{blocktitlefgcolor}{white}
+\colorlet{blockbodybgcolor}{white}
+\colorlet{blockbodyfgcolor}{black}
+
+\usetheme{Default}
+\usetitlestyle{Default}
+\useblockstyle{Default}
+
+% ── Title ──
+\title{\textbf{How Stable Are Regression Conclusions Across Subpopulations?} \hspace{1cm} {\large A Finite-Sample Empirical Study}}
+\author{[Authors] -- Department of Statistics -- July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{columns}
+
+%% ═══════════════════════════════════════════════ LEFT COLUMN (0.32)
+\column{0.32}
+
+\block{The Problem in One Slide}{
+  \textbf{You fit a regression on the full dataset.} The coefficients look reasonable, $R^2$ is decent, p-values are small.
+  A reviewer asks: \textit{``Does this hold for men and women separately? For young and old? For each site?''}
+
+  \vspace{4pt}
+  \begin{center}
+    \textbf{You check. It doesn't. Now what?}
+  \end{center}
+}
+
+\block{Simpson's Paradox: The Classic Warning}{
+  \begin{minipage}[c]{0.48\linewidth}
+    \centering
+    \begin{tikzpicture}[scale=1.5]
+      \draw[->] (0,0) -- (3.2,0) node[right] {$X$};
+      \draw[->] (0,0) -- (0,2.8) node[above] {$Y$};
+      \foreach \i in {1,...,20} {
+        \pgfmathsetmacro{\x}{0.3+0.8*rnd}
+        \pgfmathsetmacro{\y}{\x*0.6+0.2*rnd}
+        \fill[AccentTeal] (\x,\y) circle (0.04);
+      }
+      \foreach \i in {1,...,20} {
+        \pgfmathsetmacro{\x}{1.8+0.8*rnd}
+        \pgfmathsetmacro{\y}{\x*0.6+0.2*rnd}
+        \fill[AccentOrange] (\x,\y) circle (0.04);
+      }
+      \draw[AccentTeal, thick] (0.2,0.25) -- (1.1,0.7);
+      \draw[AccentOrange, thick] (1.8,1.2) -- (2.6,1.65);
+      \draw[AlertRed, very thick, dashed] (0.2,0.55) -- (2.8,1.2);
+      \node[AccentTeal, font=\footnotesize] at (0.6,1.6) {Group A};
+      \node[AccentOrange, font=\footnotesize] at (2.4,0.7) {Group B};
+      \node[AlertRed, font=\footnotesize] at (1.8,2.4) {Pooled (reversed!)};
+    \end{tikzpicture}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[c]{0.48\linewidth}
+    \small
+    \textbf{Within each group:} $Y$ increases with $X$ (positive slope).
+
+    \textbf{Pooled together:} the trend \textit{reverses}.
+
+    \vspace{4pt}
+    The pooled regression hides subgroup structure, and the sign of the coefficient depends on which groups you aggregate.
+
+    \textbf{Our question:} how often does this happen in practice, and can we detect it?
+  \end{minipage}
+}
+
+\block{``It's an Artifact'' -- The Core Intuition}{
+  \small
+  \begin{center}
+    \begin{tikzpicture}[every node/.style={align=center}]
+      \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=6pt,
+            inner sep=8pt, text width=0.27\linewidth,
+            font=\footnotesize\bfseries] (A) at (0,0) {
+            \includegraphics[width=0.18\textwidth]{example-image-a}\\[2pt]
+            ``The coefficients are\\completely different\\across groups!''
+          };
+      \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=6pt,
+            inner sep=8pt, text width=0.27\linewidth,
+            font=\footnotesize\bfseries] (B) at (6.5,0) {
+            \includegraphics[width=0.18\textwidth]{example-image-b}\\[2pt]
+            ``It must be genuine\\heterogeneity. The\\model doesn't transport.''
+          };
+      \node[draw=AccentTeal!70, fill=AccentTeal!8, rounded corners=6pt,
+            inner sep=8pt, text width=0.32\linewidth,
+            font=\footnotesize\bfseries] (C) at (13.5,0) {
+            \includegraphics[width=0.18\textwidth]{example-image-c}\\[2pt]
+            \color{AccentTeal}``Wait. The groups have\\different $X$ distributions.\\Most drift is a mechanical\\artifact of different\\design matrices.''
+          };
+      \draw[->, DarkBlue!50, line width=1.5pt] (A.east) -- (B.west);
+      \draw[->, DarkBlue!50, line width=1.5pt] (B.east) -- (C.west);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{2pt}
+  \textbf{The thesis:} Observed coefficient differences have \textbf{two sources}: genuine parameter heterogeneity, and mechanical artifacts from covariate distribution differences. Standard practice conflates them. We propose a simple decomposition to separate the two.
+}
+
+\block{Study Design: Four Models Compared}{
+  \small
+  For each dataset or simulated replicate we fit four nested specifications:
+
+  \vspace{4pt}
+  \begin{tabular}{@{}cl@{}}
+    \toprule
+    \textbf{Model} & \textbf{Specification} \\
+    \midrule
+    M1 (Pooled)     & $Y = \beta_0 + X^\top\beta + \varepsilon$ \\
+    M2 (Intercept)  & $Y = \beta_0 + X^\top\beta + \gamma G + \varepsilon$ \\
+    M3 (Interaction)& $Y = \beta_0 + X^\top\beta + \gamma G + X^\top\delta G + \varepsilon$ \\
+    M4 (Separate)   & $Y = \beta_{0,g} + X^\top\beta_g + \varepsilon$ \quad (per group) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  This progression isolates: (i) intercept shift, (ii) slope heterogeneity, (iii) full subgroup structure.
+}
+
+
+%% ═══════════════════════════════════════════════ CENTER COLUMN (0.36)
+\column{0.36}
+
+\block{Five Stability Metrics}{
+  \small
+  \begin{tabular}{@{}p{0.20\linewidth} p{0.34\linewidth} p{0.40\linewidth}@{}}
+    \toprule
+    \textbf{Metric} & \textbf{Definition} & \textbf{What it captures} \\
+    \midrule
+    Sign Stability Rate (SSR)
+    & $\mathrm{SSR}_j = \frac{1}{M}\sum_{m} \mathbf{1}(\mathrm{sgn}\,\hat\beta_{j,a_m} = \mathrm{sgn}\,\hat\beta_{j,b_m})$
+    & Do substantive conclusions ($+$/$-$) reverse across subgroups? \\[8pt]
+
+    Standardized Drift
+    & $D_j^\star = \frac{\max_g|\hat\beta_{j,g} - \hat\beta_{j,\text{pooled}}|}{\widehat{\text{SE}}(\hat\beta_{j,\text{pooled}})}$
+    & How far do subgroup coefficients move from pooled, in SE units? \\[8pt]
+
+    Context-Normalized Drift
+    & $\widetilde{D}_j = \dfrac{D_j^\star}{1 + M_j}$,\newline
+      $M_j = \frac{1}{\binom{G}{2}}\sum_{a<b}\frac{|\bar{x}_{j,a}-\bar{x}_{j,b}|}{s_{j,\text{pooled}}}$
+    & Drift after accounting for covariate distribution differences. \textbf{The key diagnostic.} \\[8pt]
+
+    Transported Prediction Gap
+    & $\mathrm{TPG}_{a\to b} = \mathrm{RMSE}_{\text{pooled}\to b} - \mathrm{RMSE}_{b\to b}$
+    & How much prediction error increases when a model travels across groups. \\[8pt]
+
+    Covariate Shift Summary
+    & $\mathrm{CSS}_{a,b} = \frac{1}{p}\sum_{j}\frac{|\bar{x}_{j,a} - \bar{x}_{j,b}|}{s_{j,\text{pooled}}}$
+    & How different are the $X$ distributions between groups? \\
+    \bottomrule
+  \end{tabular}
+}
+
+\block{The Key Decomposition: Why Context-Normalized Drift Is Smaller}{
+  \small
+  Under OLS, even with \textbf{identical} true $\beta$ across groups:
+  \[
+    \hat\beta^{(g)} - \hat\beta^{(\text{pooled})} = (X_g'X_g)^{-1}X_g'\varepsilon_g - (X'X)^{-1}X'\varepsilon
+  \]
+  The variance: $\mathrm{Var}(\hat\beta^{(g)} - \hat\beta^{(\text{pooled})}) = \sigma^2[(X_g'X_g)^{-1} + (X'X)^{-1}]$.
+
+  When group $g$ has a different $X$ distribution, $(X_g'X_g)^{-1} \neq (X'X)^{-1}$, and the difference inflates \textbf{even when $\beta$ is identical}. This is the \textbf{mechanical} component of drift.
+
+  \vspace{6pt}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[draw=DarkBlue, fill=DarkBlue!5, rounded corners=6pt,
+            inner sep=10pt, text width=0.92\linewidth, align=center,
+            font=\large\bfseries] {
+        $\displaystyle
+        \underbrace{D_j^\star}_{\text{Total observed drift}}
+        \;=\;
+        \underbrace{\widetilde{D}_j}_{\text{Residual (unexplained by $X$)}}
+        \;\times\;
+        \underbrace{(1 + M_j)}_{\text{Mechanical inflation from covariate spread}}
+        $
+      };
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{4pt}
+  \textbf{Three diagnostic regimes:}
+  \begin{itemize}[leftmargin=*]
+    \item[$M_j\approx 0$:] $\widetilde{D}_j \approx D_j^\star$. No correction needed. All drift is ``real.''
+    \item[$M_j$ large, $\widetilde{D}_j$ small:] Drift is an \textbf{artifact} of different $X$ distributions. Reassuring.
+    \item[$M_j$ large, $\widetilde{D}_j$ still large:] Genuine parameter heterogeneity, confirmed after correction.
+  \end{itemize}
+}
+
+\block{Simulation Grid: 140 Settings (Scenario 1)}{
+  \small
+  \textbf{Factors varied:} $G \in \{3, 5, 10, 20, 40\}$ groups; total $n \in \{100, 300, 1000, 3000, 10000, 30000\}$;
+  4 imbalance patterns (balanced, mild, strong, Dirichlet-random).
+
+  \textbf{Each setting:} 200 Monte Carlo replicates, 4 models fitted, 5 metrics computed with means, SDs, and 95\% CIs.
+
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=0.48\linewidth]{../results/simulation/drift_by_G_and_pattern.png}\hfill
+    \includegraphics[width=0.48\linewidth]{../results/simulation/context_vs_raw_drift.png}
+  \end{center}
+  \vspace{-2pt}
+  {\tiny\textbf{Left:} Drift grows with $G$ and imbalance. \textbf{Right:} Context normalization shrinks drift (points below 1:1 line).}
+}
+
+
+%% ═══════════════════════════════════════════════ RIGHT COLUMN (0.32)
+\column{0.32}
+
+\block{Real-Data Evidence: NHANES Blood Pressure}{
+  \small
+  \textbf{NHANES 2017--2018:} $n = 9{,}254$, response = systolic BP (BPSysAve),
+  subgroups = age decades (20--29 through 70+), predictors = BMI, waist circumference, total cholesterol, HDL.
+
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=0.92\linewidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}
+  \end{center}
+  \vspace{-2pt}
+  {\tiny Coefficient CIs by age decade: note the reversal in the 60--69 and 70+ groups for waist circumference.}
+
+  \vspace{4pt}
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    \textbf{Metric} & \textbf{Value} \\
+    \midrule
+    SSR (all predictors)     & 0.57 \\
+    Max standardized drift   & 32.07 (BPSysAve) \\
+    Context-norm.\ drift     & 7.49 (BPSysAve) \\
+    Avg.\ CSS (pairwise)     & 0.28 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  \textbf{Key finding:} Waist circumference's effect on blood pressure \textit{reverses sign} in older age groups. Standardized drift of 32 is extreme, but context normalization brings it to 7.5 -- still large, confirming genuine heterogeneity, not just covariate shift.
+}
+
+\block{What Drives Regression Instability?}{
+  \small
+  \begin{center}
+    \begin{tikzpicture}[every node/.style={align=center}]
+      \node[draw=DarkBlue, fill=DarkBlue!5, rounded corners=6pt, inner sep=8pt,
+            font=\bfseries\footnotesize] (G) at (0,0) {Number of\\groups $G$};
+      \node[draw=DarkBlue, fill=DarkBlue!5, rounded corners=6pt, inner sep=8pt,
+            font=\bfseries\footnotesize] (N) at (3.5,0) {Per-group\\sample size $n_g$};
+      \node[draw=AccentOrange, fill=AccentOrange!8, rounded corners=6pt, inner sep=8pt,
+            font=\bfseries\footnotesize] (IMB) at (7,0) {Group\\imbalance};
+      \node[draw=AlertRed, fill=AlertRed!10, rounded corners=6pt, inner sep=8pt,
+            font=\bfseries\footnotesize] (HET) at (5.5,-2.2) {Coefficient\\heterogeneity};
+      \node[draw=AccentTeal, fill=AccentTeal!8, rounded corners=6pt, inner sep=8pt,
+            font=\bfseries\footnotesize] (COV) at (1.5,-2.2) {Covariate\\shift};
+      \node[draw=AlertRed!70, fill=AlertRed!15, rounded corners=8pt, inner sep=10pt,
+            font=\large\bfseries] (INST) at (3.5,-4.2) {Regression instability\\[2pt]\normalsize drift $\uparrow$, SSR $\downarrow$, TPG $\uparrow$};
+      \draw[->, thick, DarkBlue!50] (G) -- (INST);
+      \draw[->, thick, DarkBlue!50] (N) -- (INST);
+      \draw[->, thick, AccentOrange!50] (IMB) -- (INST);
+      \draw[->, thick, AlertRed!50] (HET) -- (INST);
+      \draw[->, thick, AccentTeal!50] (COV) -- (INST);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{4pt}
+  \textbf{Simulation findings (Scenario 1, no heterogeneity):}
+  \begin{itemize}[leftmargin=*]
+    \item Drift is driven by $G$ and per-group $n$, not total $N$.
+    \item Strong/random imbalance amplifies drift 2--4$\times$ over balanced.
+    \item SSR stays at 1.0 -- with identical $\beta$, there is no sign reversal.
+    \item Context normalization systematically reduces drift; shrinkage $\propto$ CSS.
+  \end{itemize}
+}
+
+\block{Take-Home Messages}{
+  \begin{enumerate}[leftmargin=*, itemsep=6pt]
+    \item \textbf{Regression conclusions are fragile.}
+          Subgroup-specific estimates routinely disagree with pooled estimates in direction, magnitude, and significance.
+
+    \item \textbf{Not all drift is real.}
+          Covariate distribution differences across groups mechanically inflate coefficient differences. Context-normalized drift separates artifact from genuine instability.
+
+    \item \textbf{Simpson's paradox is not a curiosity.}
+          It is a special case of a general phenomenon: pooling across heterogeneous subgroups produces misleading estimates.
+
+    \item \textbf{Diagnose before you conclude.}
+          Before reporting subgroup results, compute: SSR (are signs stable?), $D_j^\star$ (how far do coefficients move?), $\widetilde{D}_j$ (is it real or artifact?), TPG (does prediction degrade across groups?).
+
+    \item \textbf{The five-metric framework}
+          provides a systematic, reproducible way to assess regression stability beyond significance testing.
+  \end{enumerate}
+
+  \vspace{6pt}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[draw=AccentOrange!70, fill=AccentOrange!10, rounded corners=8pt,
+            inner sep=12pt, text width=0.9\linewidth, align=center,
+            font=\bfseries\large] {
+        A pooled regression that fits the full data well\\
+        may still mislead every subgroup it claims to describe.
+      };
+    \end{tikzpicture}
+  \end{center}
+}
+
+\block{Key References}{
+  \footnotesize
+  \begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item Berk et al.\ (2019). \textit{Fairness in Criminal Justice Risk Assessments.} Sociological Methods \& Research.
+    \item Tsoi et al.\ (2026). \textit{Calibration drift in clinical prediction models.}
+    \item Bertsimas et al.\ (2020). \textit{On the Fragility of Machine Learning Models.}
+    \item Liu et al.\ (2020). \textit{Distributional robustness in econometrics.}
+    \item Watson \& Engle (1985). \textit{Testing for regression coefficient stability.} Biometrika.
+    \item Garbade (1977). \textit{Two methods for examining the stability of regression coefficients.} JASA.
+    \item Buja et al.\ (2006). \textit{Statistical inference: The big picture.} Statistical Science.
+  \end{itemize}
+  \vspace{4pt}
+  \hfill {\tiny Poster compiled \today. Code and data: \texttt{github.com/Nadjoubiii/Regression-conclusion-stability-paper}}
+}
+
+\end{columns}
+\end{document}

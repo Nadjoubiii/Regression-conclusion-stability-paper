@@ -137,6 +137,35 @@ One entry per working session. Add a bullet for each meaningful thing done, deci
 
 ---
 
+## 2026-07-17
+
+**Focus:** Simulation diagnostic plots, context-drift decomposition analysis, A0 research poster.
+
+- Created 7 diagnostic plots from grid results (filtered to min\_group\_size >= 3):
+  - `drift_by_G_and_pattern.png` — boxplot: drift rises with G, strong/random amplify it.
+  - `ssr_by_G_and_pattern.png` — SSR flat at 1.0 (Scenario 1 has no sign flips).
+  - `context_vs_raw_drift.png` — log-log scatter: all points below 1:1 line, confirming context normalization shrinks drift systematically.
+  - `drift_vs_avgn_by_G.png` — drift drops steeply as per-group n grows beyond ~50.
+  - `drift_shrinkage_pct.png` — shrinkage % rises with CSS; larger covariate shift = more context normalization matters.
+  - `ssr_vs_drift.png` — SSR flat at 1.0 regardless of drift magnitude (Scenario 1 limitation).
+  - `drift_heatmap.png` — 4-panel heatmap of drift by G $\times$ total\_n, faceted by pattern; drift explodes at high G + small n.
+- Derived and documented the mathematical decomposition of context-normalized drift:
+  - $D_j^\star = \widetilde{D}_j \times (1 + M_j)$ — total observed drift = genuine component $\times$ mechanical inflation from covariate spread.
+  - Showed OLS variance derivation: $\text{Var}(\hat\beta^{(g)} - \hat\beta^{(\text{pooled})}) = \sigma^2[(X_g'X_g)^{-1} + (X'X)^{-1}]$.
+  - Three diagnostic regimes: (1) $M_j \approx 0 \Rightarrow \widetilde{D}_j \approx D_j^\star$ (all real), (2) large $M_j$ + small $\widetilde{D}_j$ = artifact, (3) both large = genuine heterogeneity.
+- Designed and compiled an **A0 landscape research poster** (`paper/poster.tex` $\to$ `poster.pdf`, 251 KB, 0 errors):
+  - 3-column layout with 11 blocks covering: problem hook, Simpson's paradox diagram, "It's an Artifact" 3-panel meme, four models table, five metrics table with formulas, decomposition equation with OLS derivation, simulation grid with embedded plots, NHANES real-data results with coefficient CI plot, driver diagram (5 factors $\to$ instability), take-home messages, and references.
+  - Visual elements include custom tikz diagrams for Simpson's paradox and causal drivers, 3-panel meme flow, highlighted equation box, and two embedded simulation plots.
+
+**Decisions made:**
+- Context normalization decomposition is a core contribution and should drive the simulation section narrative.
+- The "artifact" framing (separating mechanical from genuine drift) is a clear way to communicate the contribution to applied audiences.
+- Poster can be used for departmental seminars or conference submission.
+
+**Next:** Draft the simulation section using the plots and decomposition analysis. Then run multi-scenario comparison (Scenarios 2-4) and create a sign-flip scenario to observe SSR < 1 behavior.
+
+---
+
 <!-- TEMPLATE for future entries:
 
 ## YYYY-MM-DD

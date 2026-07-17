@@ -83,6 +83,17 @@ This file tracks which ideas, claims, and decisions originated with the research
 | GitHub repo initialization and push | **AI** | Researcher provided repo link; AI executed git commands |
 ---
 
+## 2026-07-17 Simulation Plots, Decomposition Analysis, and Poster
+
+| Item | Origin | Notes |
+|------|--------|-------|
+| 7 diagnostic simulation plots (drift boxplot, context vs raw, etc.) | **AI** | Researcher asked for "relevant plots"; AI designed and produced all 7 |
+| Context-normalized drift decomposition ($D_j^\star = \widetilde{D}_j \times (1+M_j)$) | **AI** | AI derived and documented the mathematical relationship; researcher reviewed and discussed |
+| OLS variance derivation for drift decomposition | **AI** | Standard result, used for exposition |
+| A0 research poster (`paper/poster.tex`, `poster.pdf`) | **AI** | AI designed layout, wrote content, created tikz diagrams, and compiled; researcher can modify before use |
+| Simpson's paradox tikz diagram in poster | **AI** | Custom tikz drawing |
+| "It's an Artifact" 3-panel meme flow in poster | **AI** | Designed as pedagogical hook; uses `mwe` package example images |
+
 ## Session Maintenance and Admin
 
 | Item | Origin | Notes |
