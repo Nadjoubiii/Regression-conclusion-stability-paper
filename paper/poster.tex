@@ -1,4 +1,4 @@
-\documentclass[20pt, a0paper, landscape, margin=15mm, innermargin=20mm, blockverticalspace=12mm]{tikzposter}
+\documentclass[25pt, a0paper, landscape, margin=0mm, innermargin=14mm, blockverticalspace=6mm]{tikzposter}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
@@ -8,22 +8,25 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 
-\definecolor{DarkBlue}{HTML}{1B2A4A}
-\definecolor{AccentOrange}{HTML}{E8752A}
-\definecolor{AccentTeal}{HTML}{0F9B8E}
-\definecolor{AlertRed}{HTML}{C0392B}
+\definecolor{PrimaryBlue}{HTML}{2C5F8A}
+\definecolor{AccentAmber}{HTML}{D4843A}
+\definecolor{AccentTeal}{HTML}{2E8B7B}
+\definecolor{AlertRed}{HTML}{B33A3A}
+\definecolor{BgGray}{HTML}{FFFFFF}
 
-\colorlet{blocktitlebgcolor}{DarkBlue}
+\colorlet{blocktitlebgcolor}{PrimaryBlue}
 \colorlet{blocktitlefgcolor}{white}
 \colorlet{blockbodybgcolor}{white}
 \colorlet{blockbodyfgcolor}{black}
 
-% Custom block style: like Default but with thinner border, smaller rounding
+% Force white page background (like beamerposter's \setbeamercolor{bg=white})
+\pagecolor{white}
+
 \defineblockstyle{Clean}{
-    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titlewidthscale=0.95, bodywidthscale=1, titlecenter,
     titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
     bodyverticalshift=0pt, roundedcorners=8, linewidth=0.08cm,
-    titleinnersep=0.7cm, bodyinnersep=0.8cm
+    titleinnersep=0.5cm, bodyinnersep=0.8cm
 }{
     \begin{scope}[line width=\blocklinewidth, rounded corners=\blockroundedcorners]
         \ifBlockHasTitle
@@ -35,188 +38,302 @@
     \end{scope}
 }
 
-\usetheme{Default}
-\usetitlestyle{Default}
+\defineblockstyle{IntroBox}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=8, linewidth=0.08cm,
+    titleinnersep=0.5cm, bodyinnersep=1.2cm
+}{
+    \begin{scope}[line width=\blocklinewidth, rounded corners=\blockroundedcorners]
+        \ifBlockHasTitle
+           \draw[color=framecolor, fill=framecolor] (blockbody.south west) rectangle (blocktitle.north east);
+           \draw[color=PrimaryBlue!30, fill=white] (blockbody.south west) rectangle (blockbody.north east);
+        \else
+           \draw[color=PrimaryBlue!30, fill=white] (blockbody.south west) rectangle (blockbody.north east);
+        \fi
+    \end{scope}
+}
 
-% Put the logo to the left of the title
+\defineinnerblockstyle{SubSection}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=6pt, roundedcorners=4, linewidth=0.05cm,
+    titleinnersep=0.3cm, bodyinnersep=0.55cm
+}{
+    \begin{scope}[line width=\innerblocklinewidth, rounded corners=\innerblockroundedcorners]
+        \ifInnerblockHasTitle
+           \draw[color=PrimaryBlue!50, fill=PrimaryBlue!8] (innerblockbody.south west) rectangle (innerblocktitle.north east);
+           \draw[color=PrimaryBlue!30, fill=white] (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \else
+           \draw[color=PrimaryBlue!30, fill=white] (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \fi
+    \end{scope}
+}
+
+\usetheme{Default}
+\useblockstyle{Clean}
+
+\definetitlestyle{WideTitle}{
+    width=0.98\paperwidth, roundedcorners=20, linewidth=0.2cm, innersep=0.6cm,
+    titletotopverticalspace=10mm, titletoblockverticalspace=12mm,
+    titlegraphictotitledistance=0pt, titletextscale=1
+}{
+    \begin{scope}[line width=\titlelinewidth, rounded corners=\titleroundedcorners]
+        \draw[color=framecolor, fill=titlebgcolor]%
+        (\titleposleft,\titleposbottom) rectangle (\titleposright,\titlepostop);
+    \end{scope}
+}
+\usetitlestyle{WideTitle}
+
 \makeatletter
 \renewcommand{\TP@maketitle}{%
-  \centering
-  \vbox{%
-    \begin{minipage}[c]{0.3\linewidth}
-      \raggedleft
-      \includegraphics[height=5cm]{AUB_Main_Horizontal_RGB.pdf}
-    \end{minipage}
-    \hspace{0.05\linewidth}
-    \begin{minipage}[c]{0.6\linewidth}
-      \centering
-      \color{titlefgcolor}
-      {\bfseries \Huge \sc \shortstack{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\[2mm] \large A Finite-Sample Empirical Study} \par}
-      \vspace*{1em}
-      {\huge [Authors] -- Department of Statistics -- July 2026 \par}
-    \end{minipage}
+  \centering\vbox{%
+    \begin{minipage}[c]{0.22\linewidth}
+      \raggedleft\includegraphics[height=5.5cm]{AUB_Main_Horizontal_RGB.pdf}
+    \end{minipage}\hspace{0.03\linewidth}%
+    \begin{minipage}[c]{0.68\linewidth}
+      \centering\color{titlefgcolor}
+      {\bfseries\LARGE\sc\shortstack{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\[10mm]\large Nadjib Tebbal -- A Finite-Sample Empirical Study}\par}
+    \end{minipage}%
   }%
 }
 \makeatother
-\useblockstyle{Clean}
 
 \begin{document}
 \maketitle
 
 \begin{columns}
 
-%% LEFT COLUMN (0.30)
+%% ═══════════════════════════ LEFT (0.35) : INTRO
 \column{0.30}
+\useblockstyle{IntroBox}
+\block{Introduction}{
+  \useinnerblockstyle{SubSection}
 
-\block{The Problem}{
-  You fit a regression on the full dataset. $R^2$ is fine, p-values are small.
-  A reviewer asks: \textit{``Does this hold for each subgroup?''}
-  \begin{center}
-    \textbf{You check. It doesn't. Now what?}
-  \end{center}
+  \innerblock{The Problem}{
+    You fit a regression on the full dataset. $R^2$ is fine, p-values are small. A reviewer asks:
+    \textit{``Does this hold for each subgroup?''}
+    \begin{center}\textbf{You check. It doesn't. Now what?}\end{center}
+  }
+  \vspace{40pt}
+  \innerblock{Simpson's Paradox}{
+    \begin{center}\includegraphics[width=0.58\linewidth]{simpson.jpg}\end{center}
+    Within each group the trend is positive. Pooled, it reverses. The pooled regression hides subgroup structure.
+  }
+  \vspace{40pt}
+  \innerblock{``It's an Artifact''}{
+    \begin{center}
+      \begin{tikzpicture}[every node/.style={align=center}, scale=0.95]
+        \node[draw=PrimaryBlue!30, fill=PrimaryBlue!5, rounded corners=3pt,
+              inner sep=4pt, minimum width=0.16\linewidth] (A) {``The coefs differ\\across groups!''};
+        \node[draw=PrimaryBlue!30, fill=PrimaryBlue!5, rounded corners=3pt,
+              inner sep=4pt, minimum width=0.16\linewidth, below=1.5cm of A] (B) {``Genuine heterogeneity.\\Model doesn't transport.''};
+        \node[draw=AccentTeal!70, fill=AccentTeal!8, rounded corners=3pt,
+              inner sep=4pt, minimum width=0.16\linewidth, below=1.5cm of B] (C)
+              {\color{AccentTeal}``Wait --- different $X$\\distributions cause\\most of the drift.''};
+        \draw[->, PrimaryBlue!40, line width=1pt] (A.south) -- (B.north);
+        \draw[->, PrimaryBlue!40, line width=1pt] (B.south) -- (C.north);
+      \end{tikzpicture}
+    \end{center}
+    \vspace{20pt}  
+    Coef differences = \textbf{genuine heterogeneity} $+$ \textbf{mechanical artifact} (covariate distribution differences). Standard practice conflates them.
+  }
+  \vspace{40pt}
+  \innerblock{Real-Data: NHANES Blood Pressure}{
+    $n = 9{,}254$, systolic BP, age-decade subgroups.
+    \begin{center}\includegraphics[width=0.45\linewidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}\end{center}
+    \textbf{SSR = 0.57} \quad|\quad \textbf{Drift: 32.07 $\to$ 7.49} (context-norm.)
+    
+    \begin{itemize}[leftmargin=*, itemsep=1pt]
+      \item Effect \textit{reverses sign} in older groups
+      \item Pooled model underperforms in \textbf{every} age decade
+      \item $\widetilde{D}_j$ stays large after correction
+    \end{itemize}
+  }
 }
+\useblockstyle{Clean}
 
-\block{Simpson's Paradox}{
-  \begin{center}
-    \includegraphics[width=0.85\linewidth]{simpson.jpg}
-  \end{center}
-  Within each group the trend is positive. Pooled, it reverses. The pooled regression hides subgroup structure.
+
+%% ═══════════════════════════ CENTER (0.38) : THE WORK
+\column{0.42}
+
+\useblockstyle{IntroBox}
+\block{The Work: Simulation Study}{
+
+  \useinnerblockstyle{SubSection}
+
+  \innerblock{How the Simulation Works}{
+    \begin{center}
+      \begin{tikzpicture}[every node/.style={align=center, font=\small}, node distance=1.4cm]
+        % Row 1: Setup
+        \node[draw=PrimaryBlue!50, fill=PrimaryBlue!5, rounded corners=3pt, inner sep=6pt] (G) {Set up grid};
+        \node[draw=PrimaryBlue!50, fill=PrimaryBlue!5, rounded corners=3pt, inner sep=6pt, right=of G] (D) {Generate data\\MVN $X$, linear $y$};
+
+        % Row 2: Branch S1 (left) | S4 (right) with wider gap
+        \node[draw=AccentTeal!60, fill=AccentTeal!5, rounded corners=3pt, inner sep=6pt, below left=1cm and 0.3cm of D] (S1) {S1: identical $\beta$, $X$\\all groups same};
+        \node[draw=AlertRed!60, fill=AlertRed!5, rounded corners=3pt, inner sep=6pt, below right=1cm and 0.3cm of D] (S4) {S4: shifted $\beta$, $X$\\groups differ};
+
+        % Row 3: Merge back to common pipeline
+        \node[draw=PrimaryBlue!50, fill=PrimaryBlue!5, rounded corners=3pt, inner sep=6pt, below=1.5cm of S1.south east, xshift=3cm] (F) {Fit 4 models\\(pooled, intercept,\\interaction, separate)};
+        \node[draw=PrimaryBlue!50, fill=PrimaryBlue!5, rounded corners=3pt, inner sep=6pt, right=1.2cm of F] (M) {Compute 5 metrics\\(SSR, drift, context,\\TPG, CSS)};
+        \node[draw=AccentAmber!60, fill=AccentAmber!5, rounded corners=3pt, inner sep=6pt, right=1.2cm of M] (R) {Repeat 100$\times$\\aggregate means,\\SDs, 95\% CIs};
+
+        % Arrows
+        \draw[->, PrimaryBlue!40, line width=1pt] (G) -- (D);
+        \draw[->, AccentTeal!50, line width=1pt] (D.south) -- (S1.north);
+        \draw[->, AlertRed!50, line width=1pt] (D.south) -- (S4.north);
+        \draw[->, AccentTeal!50, line width=1pt] (S1.south) -- (F.north);
+        \draw[->, AlertRed!50, line width=1pt] (S4.south) -- (F.north);
+        \draw[->, PrimaryBlue!40, line width=1pt] (F) -- (M);
+        \draw[->, PrimaryBlue!40, line width=1pt] (M) -- (R);
+      \end{tikzpicture}
+    \end{center}
+  
+  }
+
+  \vspace{20pt}
+  \innerblock{Five Stability Metrics}{
+    \begin{tabular}{@{}p{0.10\linewidth} p{0.48\linewidth} p{0.34\linewidth}@{}}
+      \toprule
+      \textbf{Metric} & \textbf{Definition} & \textbf{What it captures} \\
+      \midrule
+      SSR
+      & $\mathrm{SSR}_j = \frac{1}{M}\!\sum\!\mathbf{1}(\mathrm{sgn}\,\hat\beta_{j,a}=\mathrm{sgn}\,\hat\beta_{j,b})$
+      & Do signs ($+$/$-$) reverse across groups? \\[15pt]
+      Std.\ drift
+      & $D_j^\star = \frac{\max_g|\hat\beta_{j,g} - \hat\beta_{j,\text{pooled}}|}{\widehat{\text{SE}}(\hat\beta_{j,\text{pooled}})}$
+      & How far do subgroup coefs move from pooled? \\[15pt]
+      Context drift
+      & $\widetilde{D}_j = \dfrac{D_j^\star}{1 + M_j}$,\quad $M_j =$ avg.\ $|\bar{x}_{j,a} - \bar{x}_{j,b}| / s_{j}$
+      & Drift corrected for $X$ distribution differences. \\[15pt]
+      TPG
+      & $\mathrm{TPG}_{a\to b} = \mathrm{RMSE}_{\text{pooled}\to b} - \mathrm{RMSE}_{b\to b}$
+      & Prediction loss across groups. \\[15pt]
+      CSS
+      & $\mathrm{CSS}_{a,b} = \frac{1}{p}\!\sum_{j}\!\frac{|\bar{x}_{j,a} - \bar{x}_{j,b}|}{s_{j}}$
+      & How different are $X$ distributions? \\
+      \bottomrule
+    \end{tabular}
+  }
+
+  \vspace{20pt}
+  \innerblock{Simulation Results: S1 vs S4}{
+    {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.05pt}
+    \begin{minipage}[t]{0.48\linewidth}
+      \centering
+      \textbf{Scenario 1: No Heterogeneity}\\[2pt]
+      Identical $\beta$, identical $X$. Drift is mechanical.\\[2pt]
+      \fbox{\includegraphics[width=\linewidth]{../results/simulation/poster_s1_drift.png}}\\[2pt]
+      \fbox{\includegraphics[width=\linewidth]{../results/simulation/poster_tpg_s1vss4.png}}
+      {\small SSR = 1.0 throughout. Context shrinks drift $\sim$35\%.}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.48\linewidth}
+      \centering
+      \textbf{Scenario 4: Combined Heterogeneity}\\[2pt]
+      Shifted $\beta$ + shifted $X$. The realistic case.\\[2pt]
+      \fbox{\includegraphics[width=\linewidth]{../results/simulation/poster_s4_ssr.png}}\\[2pt]
+      \fbox{\includegraphics[width=\linewidth]{../results/simulation/poster_s4_drift.png}}
+      {\small SSR 0.56--1.00 (44\% $<$1). Drift $\sim$7$\times$ S1. $\widetilde{D}_j$ stays large.}
+    \end{minipage}
+    }
+
+    \vspace{30pt}
+    \textbf{Key contrast:} S1 drift is purely mechanical $\Rightarrow$ $\widetilde{D}_j \approx 0$ after correction. S4 drift is mechanical $+$ genuine $\Rightarrow$ $\widetilde{D}_j$ stays large. The three-regime diagnostic works as predicted.
+  }
+
 }
+\useblockstyle{Clean}
 
-\block{``It's an Artifact''}{
-  \begin{center}
-    \begin{tikzpicture}[every node/.style={align=center, font=\small}]
-      \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=4pt,
-            inner sep=5pt, minimum width=0.22\linewidth] (A) {
-            ``The coefficients differ\\across groups!''
-          };
-      \node[draw=DarkBlue!30, fill=DarkBlue!5, rounded corners=4pt,
-            inner sep=5pt, minimum width=0.22\linewidth, below=1.2cm of A] (B) {
-            ``Genuine heterogeneity.\\Model doesn't transport.''
-          };
-      \node[draw=AccentTeal!70, fill=AccentTeal!8, rounded corners=4pt,
-            inner sep=5pt, minimum width=0.22\linewidth, below=1.2cm of B] (C) {
-            \color{AccentTeal}``Wait --- different $X$\\ distributions cause\\most of the drift.''
-          };
-      \draw[->, DarkBlue!40, line width=1pt] (A.south) -- (B.north);
-      \draw[->, DarkBlue!40, line width=1pt] (B.south) -- (C.north);
+
+%% RIGHT COLUMN (0.27) : WHY THIS HAPPENS
+\column{0.27}
+
+\useblockstyle{IntroBox}
+\block{Why it Happens: The Explanation}{
+
+  \useinnerblockstyle{SubSection}
+
+  \innerblock{Key Idea: $D_j^\star = \widetilde{D}_j \times (1 + M_j)$}{
+    Different $X$ distributions $\Rightarrow$ different design matrices $\Rightarrow$ mechanical drift even with identical $\beta$.
+
+    \begin{center}
+      \colorbox{PrimaryBlue!5}{$\displaystyle D_j^\star \;=\; \widetilde{D}_j \;\times\; (1 + M_j)$}\\[3pt]
+      {\small Total = Genuine $\times$ Mechanical}
+    \end{center}
+
+    \begin{center}
+      $M_j\!\approx\!0 \;\Rightarrow\; \widetilde{D}_j \!\approx\! D_j^\star$ (real)\\
+      $M_j\!\uparrow$, $\widetilde{D}_j\!\downarrow \;\Rightarrow$ artifact\\
+      $M_j\!\uparrow$, $\widetilde{D}_j\!\uparrow \;\Rightarrow$ genuine
+    \end{center}
+  }
+
+  \vspace{40pt}
+  \innerblock{S1 vs S4: What Differed?}{
+    \begin{center}
+      \includegraphics[width=0.9\linewidth]{../results/simulation/poster_s1vss4_drift.png}
+    \end{center}
+    \textbf{S4 breaks:} coefficient shifts cause sign reversals (SSR $<1$); covariate shifts add mechanical drift. Context strips the mechanical part but $\beta$ differences remain.\\[2pt]
+    \textbf{S1 stable:} no true heterogeneity $\Rightarrow$ all drift mechanical $\Rightarrow$ $\widetilde{D}_j \to 0$.
+  }
+
+  \vspace{20pt}
+  \innerblock{What Drives Instability?}{
+    \vspace{40pt}
+    \centering
+    \begin{tikzpicture}[x=\linewidth, y=1cm, every node/.style={align=center}]
+      % Top row: five causes
+      \node[draw=PrimaryBlue!60, fill=PrimaryBlue!5, rounded corners=3pt,
+            inner sep=4pt, minimum width=2.2cm] (G) at (0.10,0) {$G \uparrow$};
+      \node[draw=PrimaryBlue!60, fill=PrimaryBlue!5, rounded corners=3pt,
+            inner sep=4pt, minimum width=2.2cm] (N) at (0.30,1) {$n_g \downarrow$};
+      \node[draw=AccentAmber!80, fill=AccentAmber!5, rounded corners=3pt,
+            inner sep=4pt, minimum width=2.2cm] (IMB) at (0.50,1) {Imbalance};
+      \node[draw=AlertRed!80, fill=AlertRed!5, rounded corners=3pt,
+            inner sep=4pt, minimum width=2.2cm] (HET) at (0.70,1) {Coef.\ het.};
+      \node[draw=AccentTeal!80, fill=AccentTeal!5, rounded corners=3pt,
+            inner sep=4pt, minimum width=2.2cm] (COV) at (0.90,0) {Cov.\ shift};
+
+      % Bottom row: result
+      \node[draw=AlertRed!70, fill=AlertRed!8, rounded corners=5pt,
+            inner sep=8pt, minimum width=8cm] (INST) at (0.50,-3.0)
+            {\textbf{\Large Regression instability}\\[4pt]\large drift$\uparrow$ \quad SSR$\downarrow$ \quad TPG$\uparrow$};
+
+      % Arrows: all five point down to instability
+      \draw[->, thick, PrimaryBlue!50] (G.south) -- (INST.west);
+      \draw[->, thick, PrimaryBlue!50] (N.south) -- (INST.north -| 0.30,0);
+      \draw[->, thick, AccentAmber!50] (IMB.south) -- (INST.north -| 0.50,0);
+      \draw[->, thick, AlertRed!50] (HET.south) -- (INST.north -| 0.70,0);
+      \draw[->, thick, AccentTeal!50] (COV.south) -- (INST.east);
     \end{tikzpicture}
-  \end{center}
-  Coefficient differences come from \textbf{two sources}: genuine heterogeneity and mechanical artifacts from covariate distribution differences. Standard practice conflates them.
+    \vspace{30pt}
+    \begin{itemize}[leftmargin=*, itemsep=2pt]
+      \item These factors interact multiplicatively.
+      \item Always check per-group $n$ and imbalance before interpreting subgroup estimates.
+    \end{itemize}
+    \vspace{20pt}
+  }
+
+  \vspace{20pt}
+  \innerblock{References \& Future Work}{
+    \textbf{Future:} Run S2--S3; then collinearity, higher $p$, different models.
+    
+    \vspace{4pt}
+    \textbf{References:}
+    {\footnotesize
+    \begin{itemize}[leftmargin=*, itemsep=1pt]
+      \item Berk et al.\ (2019). Fairness in Criminal Justice Risk Assessments. \textit{Sociol.\ Methods Res.}
+      \item Tsoi \& Sun (2026). Calibration drift in clinical prediction models.
+      \item Bertsimas \& Paskov (2020). On the Fragility of Machine Learning Models. \textit{JMLR 21}.
+      \item Liu et al.\ (2020). Distributional robustness in econometrics. \textit{JoE}.
+      \item Watson \& Engle (1985). Testing for regression coefficient stability. \textit{Biometrika}.
+    \end{itemize}
+    }
+  }
+
 }
-
-
-%% CENTER COLUMN (0.40)
-\column{0.40}
-
-\block{Real-Data: NHANES BPSysAve}{
-  \textbf{NHANES 2017--2018} ($n=9{,}254$). Response: systolic BP.
-  Subgroups: age decades. Focus predictor: BPSysAve.
-
-  \begin{center}
-    \includegraphics[width=0.7\linewidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}
-  \end{center}
-
-  \begin{tabular}{@{}lr@{}}
-    \toprule
-    \textbf{Metric} & \textbf{Value} \\
-    \midrule
-    SSR (BPSysAve)      & 0.57 \\
-    Std.\ drift         & 32.07 \\
-    Context-norm.\ drift & 7.49 \\
-    \bottomrule
-  \end{tabular}
-
-  \textbf{Key finding:} Effect \textit{reverses sign} in older groups. Drift 32$\to$7.5 after context normalization, confirming genuine heterogeneity.
-}
-
-\block{Five Stability Metrics}{
-  \begin{tabular}{@{}p{0.15\linewidth} p{0.38\linewidth} p{0.40\linewidth}@{}}
-    \toprule
-    \textbf{Metric} & \textbf{Definition} & \textbf{What it captures} \\
-    \midrule
-    SSR
-    & $\mathrm{SSR}_j = \frac{1}{M}\sum \mathbf{1}(\mathrm{sgn}\,\hat\beta_{j,a}=\mathrm{sgn}\,\hat\beta_{j,b})$
-    & Do conclusions ($+$/$-$) reverse across groups? \\[6pt]
-
-    Standardized drift
-    & $D_j^\star = \frac{\max_g|\hat\beta_{j,g} - \hat\beta_{j,\text{pooled}}|}{\widehat{\text{SE}}(\hat\beta_{j,\text{pooled}})}$
-    & How far do subgroup coefficients move from pooled, in SE units? \\[6pt]
-
-    Context-norm.\ drift
-    & $\widetilde{D}_j = \dfrac{D_j^\star}{1 + M_j}$,\newline
-      $M_j = \frac{1}{\binom{G}{2}}\sum_{a<b}\frac{|\bar{x}_{j,a}-\bar{x}_{j,b}|}{s_{j,\text{pooled}}}$
-    & Drift after accounting for covariate distribution differences. \\[6pt]
-
-    TPG
-    & $\mathrm{TPG}_{a\to b} = \mathrm{RMSE}_{\text{pooled}\to b} - \mathrm{RMSE}_{b\to b}$
-    & Prediction loss when a model travels across groups. \\[6pt]
-
-    CSS
-    & $\mathrm{CSS}_{a,b} = \frac{1}{p}\sum_{j}\frac{|\bar{x}_{j,a} - \bar{x}_{j,b}|}{s_{j,\text{pooled}}}$
-    & How different are $X$ distributions between groups? \\
-    \bottomrule
-  \end{tabular}
-}
-
-\block{Key Decomposition: Why Context Drift $<$ Raw Drift}{
-  Even with identical $\beta$, different $X$ distributions inflate drift:
-  \[
-    \hat\beta^{(g)} - \hat\beta^{(\text{pooled})} = (X_g'X_g)^{-1}X_g'\varepsilon_g - (X'X)^{-1}X'\varepsilon
-  \]
-  \begin{center}
-    \colorbox{DarkBlue!5}{$D_j^\star \;=\; \widetilde{D}_j \;\times\; (1 + M_j)$}\\[2pt]
-    {\footnotesize Total = Genuine $\times$ Mechanical}
-  \end{center}
-  3 regimes: $M_j\approx 0 \Rightarrow$ all drift real; large $M_j$ + small $\widetilde{D}_j \Rightarrow$ artifact; both large $\Rightarrow$ genuine heterogeneity.
-}
-
-
-%% RIGHT COLUMN (0.30)
-\column{0.30}
-
-\block{Four Models (nested)}{
-  M1: pooled $Y = \beta_0 + X^\top\beta + \varepsilon$\\
-  M2: add group intercept $\gamma G$\\
-  M3: add interactions $X^\top\delta G$\\
-  M4: fully separate model per group
-}
-
-\block{Simulation Grid (Scenario 1)}{
-  \textbf{140 settings:} $G \in \{3,5,10,20,40\}$, $n \in \{100,\dots,30000\}$,
-  4 imbalance patterns (balanced, mild, strong, Dirichlet-random). 200 reps each.
-
-  \begin{center}
-    \includegraphics[width=0.47\linewidth]{../results/simulation/drift_by_G_and_pattern.png}\hfill
-    \includegraphics[width=0.47\linewidth]{../results/simulation/context_vs_raw_drift.png}
-  \end{center}
-  Drift grows with $G$ and imbalance (left). Context normalization shrinks drift (right).
-}
-
-\block{What Drives Instability?}{
-  \begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item Drift driven by $G$ and per-group $n$, not total $N$.
-    \item Strong/random imbalance amplifies drift 2--4$\times$ over balanced.
-    \item SSR = 1.0 throughout (Scenario 1: identical $\beta$, no sign flips).
-    \item Context normalization reduces drift; shrinkage $\propto$ CSS.
-  \end{itemize}
-}
-
-\block{Future Work}{
-  Same analysis for Scenarios 2--4, then:
-  \begin{enumerate}[leftmargin=*, itemsep=2pt]
-    \item Introduce \textbf{collinearity} across predictors
-    \item Scale to \textbf{higher dimensions} (more predictors)
-    \item Test \textbf{different regression models} beyond OLS
-  \end{enumerate}
-}
-
-\block{References}{
-  \scriptsize
-  Berk et al.\ (2019); Tsoi et al.\ (2026); Bertsimas \& Paskov (2020);
-  Liu et al.\ (2020); Watson \& Engle (1985); Garbade (1977); Buja et al.\ (2006).
-  \hfill {\tiny \texttt{github.com/Nadjoubiii/Regression-conclusion-stability-paper}}
-}
+\useblockstyle{Clean}
 
 \end{columns}
 \end{document}

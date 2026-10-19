@@ -1,8 +1,6 @@
 \section{Methods}\label{sec:methods}
 
-We consider a response $Y$, predictors $X \in \mathbb{R}^p$, and subgroups indexed by $g \in \{1,\dots,G\}$. Let $n_g$ denote the sample size in subgroup $g$, and let $\hat{\beta}_{j,g}$ denote the estimated coefficient for predictor $j$ in subgroup $g$. The pooled estimate is denoted by $\hat{\beta}_{j,\mathrm{pooled}}$.
-
-The goal of the Methods section is not to introduce a new estimator. Instead, it sets up a simple comparison framework for asking when a pooled linear regression remains stable across subpopulations, and when it breaks down. We treat the pooled model as the baseline and then examine subgroup-specific departures using five quantities: sign stability, standardized coefficient drift, context-normalized drift, transported prediction gap, and a summary of covariate shift.
+Let $Y$ denote the response, let $X \in \mathbb{R}^p$ denote the predictors, and let $g \in \{1,\dots,G\}$ index observed subgroups. The subgroup sample size is $n_g$, the subgroup coefficient for predictor $j$ is $\hat{\beta}_{j,g}$, and the pooled coefficient is $\hat{\beta}_{j,\mathrm{pool}}$. We treat the pooled regression as the estimand to be assessed, not as a benchmark assumed to be correct. The analysis records five complementary diagnostics of subgroup disagreement.
 
 \subsection{Core Stability Metrics}
 
@@ -38,11 +36,11 @@ $\widetilde{D}_j = \frac{D_j^{\star}}{1 + M_j}$.
 &
 Coefficient drift scaled by subgroup mean separation, so large drift is interpreted relative to observed covariate spread. \\[10pt]
 
-Transported prediction gap ($a \to b$)
+Pooled-versus-subgroup prediction gap ($g$)
 &
-$\mathrm{TPG}_{a \to b} = \mathrm{RMSE}_{a \to b} - \mathrm{RMSE}_{a \to a}$ (analogously for MAE).
+$\mathrm{TPG}_g = \mathrm{RMSE}(\hat f_{\mathrm{pool}};g) - \mathrm{RMSE}(\hat f_g;g)$.
 &
-Out-of-group performance loss relative to in-group performance. \\[10pt]
+Loss from using the pooled fit rather than the group-specific fit on observations in group $g$. \\[10pt]
 
 Covariate shift summary between groups $a$ and $b$
 &
@@ -53,13 +51,13 @@ Average standardized difference in predictor distributions across groups. \\
 \end{tabularx}
 \end{table}
 
-In $\mathrm{SSR}_j$, each pair $(a_m,b_m)$ is a selected subgroup or pooled-vs-subgroup comparison.
+For $\mathrm{SSR}_j$, the pairs $(a_m,b_m)$ are all pairwise comparisons of subgroup-specific coefficient signs. The prediction gap is evaluated within each target group and then averaged across groups; it is not a pairwise source-to-target prediction experiment.
 
 Higher values of $D_j^{\star}$, $\widetilde{D}_j$, $\mathrm{TPG}_{a \to b}$, and $\mathrm{CSS}_{a,b}$ indicate greater instability or mismatch, while higher $\mathrm{SSR}_j$ indicates greater directional stability.
 
 \subsection{Regression Models Compared}
 
-For each dataset or simulated replicate, we compare four linear regression specifications. The first is the pooled model,
+For each dataset or simulated replicate, we fit four linear regression specifications. The pooled model is
 \[
 Y = \beta_0 + X^\top \beta + \varepsilon,
 \]
@@ -73,28 +71,24 @@ Y = \beta_0 + X^\top \beta + \gamma G + X^\top \delta G + \varepsilon,
 \]
 which allows the slope coefficients to vary by subgroup. The fourth fits separate subgroup-specific OLS models, so that each group has its own intercept and slope vector.
 
-This comparison is intentionally simple. It lets us isolate whether instability arises from the pooled structure itself, from slope heterogeneity, or from changes in the predictor distribution across groups.
+The pooled and separate models provide the quantities used in the diagnostics. The group-indicator and interaction models provide conventional reference specifications for intercept and slope differences. The comparison is descriptive; no single model is treated as the universally correct alternative.
 
 \subsection{Simulation Design}
 
-The simulation study begins from a pooled baseline and then introduces subgroup structure as a stress test. We vary four main ingredients: subgroup balance, sample size, predictor correlation, and the type of heterogeneity present. For subgroup balance, we consider both roughly equal group sizes and imbalanced settings where one group is much smaller than the others. For sample size, we use small and moderate samples to see how much apparent instability is driven by finite-sample noise. For predictor correlation, we vary the degree of collinearity so that coefficient estimates are not artificially easy to separate.
+The simulation starts with a common-slope baseline and then varies the source of subgroup disagreement. It changes total sample size, the number of groups, group-size imbalance, and whether predictor means or regression coefficients differ across groups. The predictor correlation is fixed at $\rho=0.2$, the outcome noise standard deviation is one, and there are two predictors. The four scenarios are: common predictor distributions and slopes; shifted predictor means with common slopes; common predictor distributions with shifted slopes; and simultaneous shifts in means and slopes.
 
-The baseline scenario is generated from a single global linear model, so all subgroups follow the same regression rule. The remaining scenarios add subgroup structure by allowing predictor distributions, coefficients, or both to vary by group. This lets us compare a setting where the pooled model should work well against settings where the pooled model is only an approximation.
+For every replicate, we generate data, fit the four regressions, and retain the pooled and subgroup-specific coefficients and prediction errors. Each reported setting-level result is the average of replicate-level diagnostics. The simulation is designed to characterize finite-sample behavior under these specified mechanisms, not to estimate a universal threshold for deciding whether a pooled model should be used.
 
-We study four scenarios. In the no-heterogeneity scenario, all groups share the same regression coefficients, predictor distribution, and noise level. In the covariate-shift scenario, the coefficients stay fixed but the predictor distribution changes across groups. In the coefficient-heterogeneity scenario, the coefficients differ across groups while the predictor distribution is held fixed. In the combined scenario, both the coefficients and the predictor distribution vary across groups.
+\subsection{Interaction-Test Benchmark}
 
-For each replicate, we generate the data, fit all four models, and record coefficient estimates, standard errors, signs, and prediction errors. Prediction is evaluated both within-group and across groups. This is important because the paper is not only asking whether coefficients change, but also whether a pooled model that appears acceptable overall continues to predict well in each subgroup.
-
-The simulation outputs are summarized at the replicate level and then aggregated across replicates to compute the stability metrics above. This makes it possible to compare how often sign reversals occur, how far subgroup coefficients drift from the pooled estimate, and how much predictive error increases under transport.
+We compare the diagnostic framework with the conventional test for slope interactions. The benchmark compares the group-intercept model to the model with group-specific slopes using the nested-model F-test at level $\alpha=0.05$. It is run on a reduced grid with $G \in \{3,15,40\}$, $n \in \{300,3000,30000\}$, and balanced or random group-size allocation. The four data-generating scenarios are retained, and each scenario-setting cell is replicated 200 times. The benchmark reports the proportion of replicates rejecting common slopes. It is intended as a reference comparison rather than a replacement for the descriptive diagnostics, which quantify coefficient movement, covariate separation, and pooled-versus-subgroup prediction loss.
 
 \subsection{Real-Data Workflow}
 
-The real-data analysis follows the same logic as the simulations. For each dataset, we identify a continuous response, a clear subgroup variable, and a moderate set of predictors. After basic cleaning and preprocessing, we first fit the pooled regression as the baseline. We then fit the same four regression specifications used in the simulation study and compare pooled, interaction-based, and subgroup-specific estimates, along with in-group and out-of-group prediction performance.
+The empirical analysis uses the same workflow. After defining the response, predictors, and subgroup variable, we fit the pooled, group-indicator, interaction, and separate subgroup regressions. We then compare coefficient diagnostics and the pooled-versus-subgroup prediction gap within each group.
 
-The purpose of the real-data section is not to claim universal generalization. Rather, it is to show how the stability metrics behave in applied settings where subgroup structure is present but not controlled by the analyst. The real-data examples should therefore be interpreted as illustrations of the same mechanisms studied in simulation: coefficient instability, covariate shift, and transport failure.
+To assess predictive performance beyond the estimation sample, we also use repeated stratified cross-validation. Within each repetition, observations are assigned to folds separately within each subgroup. A pooled model is fitted on the combined training observations, while a separate model is fitted for each subgroup using its training observations. Both models are evaluated on the held-out observations from that subgroup. The reported RMSE difference is $\mathrm{RMSE}_{\mathrm{pooled}} - \mathrm{RMSE}_{\mathrm{group}}$, so positive values favor the group-specific model. The empirical analysis remains illustrative. It does not identify causal effect modification or establish that the observed subgroup patterns generalize beyond the selected specification.
 
 \subsection{How the Metrics Are Used}
 
-The five metrics play different roles in the analysis. Sign stability is the most direct measure of whether substantive conclusions reverse across subgroups. Standardized coefficient drift measures how far subgroup estimates move away from the pooled estimate on a comparable scale. Context-normalized drift scales that movement by observed subgroup covariate separation. The transported prediction gap measures whether predictive performance deteriorates when a pooled model or subgroup model is moved from one group to another. Finally, the covariate shift summary provides a simple explanation for why transfer may fail.
-
-Taken together, these metrics separate interpretive instability from predictive instability. That distinction is central to the paper, because a model may remain useful for prediction even when its coefficients are not stable enough for interpretation.
+Sign stability asks whether coefficient directions agree. Standardized drift measures the largest subgroup departure from the pooled coefficient on a common scale. Context-normalized drift places that departure in relation to observed subgroup mean separation. The prediction gap measures the within-group cost of using the pooled model rather than the group-specific model. Covariate shift summarizes differences in predictor means. These quantities should be read jointly. None is a formal test of a common slope, and none on its own identifies the source of subgroup disagreement.

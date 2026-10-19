@@ -1,9 +1,58 @@
 \section{Discussion}\label{sec:discussion}
 
-The NHANES age-decade case study reinforces the simulation message: pooled regression can mask meaningful subgroup heterogeneity even when average fit appears acceptable. In this application, instability is not only a magnitude effect but also a directional effect for selected predictors.
+\subsection{Mathematical interpretation}
 
-The strongest example is BPSysAve. Its coefficient drifts substantially across decades and crosses zero in older groups, while context-normalized drift remains large after adjusting for mean covariate separation. This indicates that the observed instability is not explained only by distributional shift in predictors.
+The simulation separates estimation variation under common slopes from actual differences in subgroup slopes. Write the subgroup data-generating process as
+\[
+Y_g = X_g\beta_g + \varepsilon_g, \qquad \mathbb{E}(\varepsilon_g \mid X_g) = 0.
+\]
+The corresponding pooled population target is
+\[
+\beta_{\mathrm{pool}}^{\dagger}
+= \left(\sum_{g=1}^{G} X_g^{\top}X_g\right)^{-1}
+	\sum_{g=1}^{G} X_g^{\top}X_g\beta_g.
+\]
+When slopes differ, the pooled coefficient is not generally a simple average of the subgroup coefficients. It is a design-weighted compromise. Groups with more observations, greater predictor variation, or different predictor correlations can have greater influence on $\beta_{\mathrm{pool}}^{\dagger}$.
 
-A small-sample concern is reasonable for the $0$--$9$ subgroup, and sensitivity checks confirm that this group contributes to instability for some terms. However, the main BPSysAve instability persists after excluding $0$--$9$, and prediction gains from subgroup-specific models remain across all decades. The substantive conclusion is that age-stratified structure matters for both interpretation and prediction in this specification.
+The observed departure can be written as
+\[
+\hat{\beta}_g - \hat{\beta}_{\mathrm{pool}}
+= \left(\beta_g - \beta_{\mathrm{pool}}^{\dagger}\right)
+ + \left[(X_g^{\top}X_g)^{-1}X_g^{\top}\varepsilon_g
+ - (X^{\top}X)^{-1}X^{\top}\varepsilon\right].
+\]
+The first term is structural heterogeneity. The second is estimation noise, whose size depends on the subgroup information matrix $X_g^{\top}X_g$. Under common slopes, homoscedastic errors, and a fixed design, the variance of the difference is
+\[
+\operatorname{Var}\!\left(\hat{\beta}_g - \hat{\beta}_{\mathrm{pool}} \mid X\right)
+= \sigma^2\left[(X_g^{\top}X_g)^{-1} - (X^{\top}X)^{-1}\right].
+\]
+This expression explains Scenario~1. Dividing the data among groups reduces subgroup information and increases the dispersion of separate OLS estimates, even when every group has the same population coefficient vector.
 
-These findings should be interpreted as an empirical demonstration rather than a universal biomedical claim. The analysis uses one linear specification and in-sample subgroup comparisons. A natural next step is decade-wise cross-validation and bootstrap uncertainty quantification for drift metrics.
+Covariate shift has a narrower implication than a change in slopes. Under correct linear specification and $\mathbb{E}(\varepsilon_g\mid X_g)=0$, it does not change the conditional expectation of $\hat{\beta}_g$. It can change $X_g^{\top}X_g$, leverage, and estimator precision. Under model misspecification, it can also change the population best linear approximation. The large covariate-shift and normalization values in Scenario~2 should therefore be interpreted as evidence about design and covariate context, not as proof that covariate shift alone changes a structural slope.
+
+\subsection{Signs and prediction}
+
+Sign instability is most likely when a coefficient is close to zero relative to its standard error. For a positive coefficient under an approximately normal sampling distribution,
+\[
+\Pr\!\left(\hat{\beta}_{j,g}<0\mid X_g\right)
+\approx \Phi\!\left(-\frac{\beta_{j,g}}{\operatorname{SE}(\hat{\beta}_{j,g})}\right).
+\]
+Small groups, collinear predictors, and uneven allocations increase $\operatorname{SE}(\hat{\beta}_{j,g})$ and make sign reversals more likely even with common slopes. If population subgroup slopes lie on opposite sides of zero, structural heterogeneity provides an additional source of sign disagreement. The present simulation changes slope magnitudes without forcing a population sign reversal. Its low SSR values at sparse settings should therefore be interpreted mainly as finite-sample behavior.
+
+For prediction, compare the pooled coefficient with the target-group coefficient. Ignoring estimation noise, the excess mean squared prediction error of the pooled model in group $g$ is
+\[
+\mathbb{E}_g\!\left[(Y - X^{\top}\beta_{\mathrm{pool}}^{\dagger})^2\right]
+- \mathbb{E}_g\!\left[(Y - X^{\top}\beta_g)^2\right]
+= (\beta_{\mathrm{pool}}^{\dagger}-\beta_g)^{\top}\Sigma_g(\beta_{\mathrm{pool}}^{\dagger}-\beta_g),
+\]
+where $\Sigma_g = \mathbb{E}_g(XX^{\top})$. The loss depends both on the difference between the pooled and subgroup slopes and on the target group’s covariate geometry. This relation motivates the pooled-versus-subgroup prediction gap used in the simulation. It also shows why coefficient drift alone is not a complete measure of predictive adequacy.
+
+\subsection{Empirical illustration}
+
+The empirical illustration is consistent with the simulation patterns. In the age-stratified model, the BPSysAve coefficient changes direction in older groups and remains unstable after the smallest group is removed. Age-specific models also improve in-group prediction. These results show that the pooled coefficient is not equally descriptive across the age groups in this specification. They do not establish a causal age interaction or a biomedical mechanism.
+
+\subsection{Limitations}\label{sec:limitations}
+
+The simulation is low-dimensional and linear. Its results need not extend directly to nonlinear models, high-dimensional predictors, regularization, missing data, clustered data, or heteroscedastic errors. Context-normalized drift is a descriptive adjustment for subgroup mean separation, not a causal decomposition. It does not account for all covariance, leverage, misspecification, or measurement-error differences. Further, when slopes differ, the pooled target is design-weighted, so a subgroup's departure from the pooled coefficient is not a symmetric measure of every pairwise group difference.
+
+The empirical illustration uses one observational dataset, one specification, and primarily in-sample comparisons. The age groups are meaningful descriptive strata, but the analysis does not identify causal effect modification. Omitted variables, nonlinear age effects, and residual confounding may contribute to the observed patterns. The simulation uses 200 replications per setting, which materially reduces Monte Carlo error relative to the initial exploratory runs, but it does not replace out-of-sample validation, alternative grouping schemes, or additional empirical applications before the diagnostics are used as a general decision rule.

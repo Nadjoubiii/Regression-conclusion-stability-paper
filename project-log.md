@@ -181,3 +181,92 @@ One entry per working session. Add a bullet for each meaningful thing done, deci
 **Next:** [Concrete next step]
 
 -->
+
+---
+
+## 2026-09-08
+
+**Focus:** Scenario 2 and Scenario 3 full-grid runners, aligned to the Scenario 1 benchmark grid.
+
+- Created `scripts/run_simulation_scenario2.R` for the covariate-shift-only design and `scripts/run_simulation_scenario3.R` for the coefficient-heterogeneity-only design.
+- Matched both runners to the completed Scenario 1 workflow: same grid over group count, total sample size, and imbalance pattern; same 30 replicates per setting; same live progress printing; same checkpoint behavior.
+- Kept outputs separated by scenario so the new runs can be compared directly against Scenario 1 and Scenario 4 summaries.
+- Verified both scripts parse successfully before runtime testing.
+- Ran small runtime checks by sourcing `scripts/simulate.R` and evaluating each scenario at `n_per_group = c(30, 30, 30)`.
+- Runtime check results:
+  - Scenario 2: SSR = 1.000, drift = 1.832, context = 1.182, TPG = 0.026, CSS = 0.557.
+  - Scenario 3: SSR = 1.000, drift = 2.790, context = 2.497, TPG = 0.066, CSS = 0.113.
+- This keeps the multi-scenario comparison design consistent instead of mixing Scenario 1 with ad hoc runner settings.
+
+**Decisions made:**
+- Use the existing Scenario 1 runner as the exact template for Scenario 2 and 3, rather than the earlier Scenario 4 variant, so cross-scenario comparisons stay clean.
+
+**Next:** Launch the full Scenario 2 and Scenario 3 grids, then summarize how covariate shift alone differs from coefficient heterogeneity alone across the five metrics.
+
+---
+
+## 2026-09-14
+
+**Focus:** Cross-scenario synthesis, manuscript integration, mathematical discussion, and limitations.
+
+- Created `scripts/compare_scenarios.R` and generated `results/scenario_comparison_observations.md`, which compares all four scenario outputs using the retained settings with minimum subgroup size at least 3.
+- Identified that the saved Scenario 4 output uses different intermediate group counts, total sample sizes, and a larger replication budget than Scenarios 1--3.
+- Separated full-grid descriptive summaries from the strict 56-setting common-grid comparison, avoiding an unsupported direct ranking over mismatched grids.
+- Updated `paper/sections/simulation.tex` with the completed results for all four scenarios, the common-grid comparison rule, and the covariate-shift versus coefficient-heterogeneity interpretation.
+- Expanded `paper/sections/discussion.tex` with the pooled design-weighted target, the subgroup-versus-pooled OLS variance expression, sign-instability intuition, and the target-group excess prediction-risk expression.
+- Added a dedicated limitations section covering the low-dimensional linear design, the descriptive status of context-normalized drift, pooled-target weighting, observational interpretation, and the Scenario 4 grid mismatch.
+- Replaced the conclusion placeholder in `paper/sections/conclusion.tex` with a concise synthesis and future-work statement.
+- Corrected the bibliography path in `paper/main.tex` from `paper/references` to `references`, allowing BibTeX to locate the existing database.
+- Compiled the manuscript with BibTeX and repeated `pdflatex` passes. The build completed successfully: `paper/main.pdf` is 13 pages with citations and references resolved.
+
+**Decisions made:**
+- Treat the common-grid comparison as the main basis for claims across all four scenarios; use full-grid summaries only for within-scenario description.
+- Frame covariate shift as changing subgroup information, leverage, and transport conditions under a correctly specified common-slope model, rather than as automatically changing the population slope.
+
+**Deviation from plan:** The work expanded from reporting simulation outcomes to providing a mathematical explanation and explicit limitations. This improves the manuscript's defensibility but requires researcher review of the interpretive claims before submission.
+
+**Next:** Review the new mathematical discussion for accuracy and preferred emphasis, then decide whether to rerun Scenario 4 on the shared grid before preparing a final cross-scenario figure and table.
+
+---
+
+## 2026-10-17
+
+**Focus:** Completed 200-replication four-scenario study and manuscript refresh.
+
+- Created and ran `scripts/run_all_scenarios_mc200.R`, a resumable unified runner for all four scenarios.
+- Completed the full $4 \times 140 \times 200 = 112{,}000$-replication study. Each scenario has 140 unique settings, 200 valid replications per setting, and no duplicate grid cells.
+- Saved the new outputs separately under `results/mc200/`, preserving the earlier 30-replication files as exploratory results.
+- Updated `scripts/compare_scenarios.R` to analyze the 200-replication outputs and generated `results/mc200/scenario_comparison_observations.md`.
+- Corrected two interpretation errors exposed by the larger run: Scenario 4 has the largest median raw drift and pooled-versus-subgroup prediction gap; Scenario 3 has the largest share of retained settings with SSR below one and the largest median context-normalized drift.
+- Added `scripts/make_mc200_figures.R` and generated a new figure set under `results/mc200/figures/`, including a cross-scenario drift comparison.
+- Updated the simulation section, limitations, and the two-page professor brief with the new results, figure paths, and the correct pooled-versus-subgroup prediction-gap definition.
+- Recompiled `paper/main.pdf` successfully at 12 pages and `paper/professor_brief.pdf` successfully at 2 pages.
+
+**Decisions made:**
+- The 200-replication unified grid is now the sole basis for headline simulation claims. The older 30-replication runs remain only as development artifacts.
+- Use medians over settings with minimum subgroup size at least 3 for primary cross-scenario summaries.
+
+**Next:** Add one targeted robustness extension, preferably out-of-sample validation for the empirical illustration or a reduced-grid sensitivity analysis for predictor correlation and heterogeneity strength.
+
+---
+
+## 2026-10-17 (Submission Strengthening)
+
+**Focus:** Standard-method benchmark, held-out empirical validation, and reproducibility package.
+
+- Added `scripts/run_interaction_benchmark.R`, a resumable reduced-grid benchmark of the standard group-slope interaction F-test at $\alpha=0.05$.
+- Completed the benchmark: 72 scenario-setting cells $\times$ 200 replications = 14,400 additional simulation replicates.
+- Benchmark results: average interaction-test rejection rates were 0.051 (Scenario 1), 0.049 (Scenario 2), 0.852 (Scenario 3), and 0.845 (Scenario 4).
+- Added the benchmark design and results table to the Methods and Simulation sections. The manuscript now states that the diagnostics complement the interaction test by describing effect magnitude, covariate separation, and the within-group predictive cost of pooling.
+- Added `scripts/nhanes/repeated_cv_age_decade.R` and ran 20 repetitions of stratified five-fold cross-validation.
+- The pooled model had higher held-out RMSE in every age group. Across 800 group-fold evaluations, pooled RMSE exceeded age-specific RMSE by 0.911 on average; the descriptive repeated-CV interval was [0.813, 1.008].
+- Added the repeated-CV design, result, and figure to the Methods and Empirical Illustration sections.
+- Added a main 200-replication scenario summary table, `README.md` with commands and output locations, and a data-and-code availability statement linking the repository.
+- Updated `paper/professor_brief.tex` with the held-out validation and interaction-test comparison.
+- Final builds succeeded: `paper/main.pdf` is 13 pages and `paper/professor_brief.pdf` is 2 pages, with no unresolved references or layout warnings.
+
+**Decisions made:**
+- Use the interaction F-test as a benchmark, not as a competing replacement for the descriptive diagnostics.
+- Describe repeated-CV intervals as variation over repeated fold assignments rather than formal population confidence intervals.
+
+**Next:** Review the final submission package, verify the public repository and data-source terms, then select a journal and prepare its manuscript-specific cover letter and formatting.

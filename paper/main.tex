@@ -2,24 +2,32 @@
 
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath, amssymb, amsthm}
+\usepackage[authoryear,round]{natbib}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{tabularx}
+\usepackage{float}
 
 \makeatletter
 \def\input@path{{sections/}{paper/sections/}}
 \makeatother
 
 \title{How Stable Are Regression Conclusions Across Subpopulations?\\A Finite-Sample Empirical Study}
-\author{Draft planning document}
-\date{\today}
+\author{Nadjib Tebbal\\American University of Beirut, Beirut, Lebanon\\ORCID: 0009-0001-0462-1766}
+\date{}
 
 \begin{document}
 
 \maketitle
+
+\begin{abstract}
+Pooled linear regression is often used to summarize associations across heterogeneous subpopulations, although a pooled coefficient need not describe every subgroup equally well. This paper studies the finite-sample stability of pooled regression conclusions by comparing pooled and subgroup-specific ordinary least squares fits. We consider coefficient signs, standardized departures from the pooled estimate, covariate-context adjustment, and loss of predictive accuracy within subgroups. A unified simulation varies group count, total sample size, group-size imbalance, covariate shift, and coefficient heterogeneity across four data-generating scenarios. Even under common slopes, separate subgroup estimates diverge when groups are small or unevenly sized. Covariate shift produces large raw distributional differences but little additional predictive loss, whereas coefficient heterogeneity produces persistent coefficient divergence and poorer subgroup prediction. When both mechanisms are present, raw drift and prediction loss are largest. An age-stratified empirical illustration shows that an aggregate regression can conceal subgroup-specific patterns. The paper presents a diagnostic framework for evaluating whether a pooled regression is an adequate summary across observed subpopulations; it does not propose a new estimator or a test of causal effect modification.
+\end{abstract}
+
+\noindent\textbf{Keywords:} regression diagnostics; subpopulation heterogeneity; coefficient stability; covariate shift; Monte Carlo simulation; model transportability
 
 \input{introduction}
 \input{methods}
@@ -28,7 +36,19 @@
 \input{discussion}
 \input{conclusion}
 
-\bibliographystyle{plain}
-\bibliography{paper/references}
+\section*{Data and Code Availability}
+The simulation code, analysis scripts, figures, and nonrestricted numerical outputs are available at \url{https://github.com/Nadjoubiii/Regression-conclusion-stability-paper}. The repository README documents the software requirements, random seeds, simulation workflow, and file locations. NHANES data are obtained through the repository import script and are subject to their original source terms.
+
+\section*{Funding}
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+\section*{Declaration of Interest}
+The author declares no competing interests.
+
+\section*{Declaration of AI Assistance}
+Generative AI tools were used as writing and programming assistants during this project (Deepseek V4 Pro/Flash, GPT-5.6 Terra, Claude Sonnet 5.5). They assisted with R code development, figure-generation workflows, and language editing. The author directed the research questions and study design, reviewed the analysis and simulation code, verified the reported numerical results, and accepts responsibility for the manuscript's claims and conclusions.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
 
 \end{document}

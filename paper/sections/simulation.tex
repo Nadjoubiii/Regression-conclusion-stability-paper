@@ -1,33 +1,154 @@
 \section{Simulation Study}\label{sec:simulation}
 
-This section will present the four main simulation scenarios, summarize the outputs, and describe the core figures and tables.
+The simulation examines how the diagnostics behave when subgroup differences arise from known mechanisms. It holds the basic linear model fixed and varies group count, total sample size, group-size allocation, predictor means, and slopes. The design is intentionally low-dimensional so that changes in the diagnostics can be traced to the data-generating mechanism.
 
-% NOTE: Simulation grid uses four imbalance patterns:
-% - balanced: equal group sizes
-% - mild: shallow deterministic linear weights (1.2 to 0.8)
-% - strong: steep deterministic linear weights (G to 1)
-% - random: group proportions drawn from a flat Dirichlet(1,...,1),
-%   equivalent to drawing G independent Exponential(1) values and
-%   normalizing by their sum. This pattern represents unsystematic
-%   random imbalance with no preferred direction or ordering, and
-%   samples the full range from near-balance to extreme concentration.
-%   Each replicate redraws the random proportions, so the "random"
-%   grid rows reflect average behavior over the entire imbalance
-%   spectrum. The Gamma(1,1) / flat Dirichlet choice is supported
-%   by the fact that it is distribution-free over the simplex: every
-%   partition of n across G groups receives equal prior probability.
-%   Document this justification in the simulation write-up.
-%
-% NOTE 2026-07-16: The grid includes degenerate settings at G=40, n=100
-% (min_group_size = 2).  With only 2 observations per group, the
-% subgroup OLS model (intercept + x1 + x2) is nearly singular,
-% producing extreme coefficient estimates and inflating drift into
-% the hundreds or thousands.  These 6 rows (out of 140) skew
-% pattern-level means dramatically: e.g. mild mean_drift jumps from
-% ~3 (median) to ~1129 (mean) because G=40 n=100 mild produced
-% drift ≈ 39303 in one random draw.  All aggregated comparisons in
-% the paper should either (a) use medians or (b) explicitly exclude
-% settings with min_group_size < 3 (dropping 6 rows, leaving 134).
-% Context-drift follows the same pattern: median ctx-drift is
-% well-behaved across patterns, while means are inflated by the same
-% degenerate rows.
+\subsection{Simulation Design}
+
+\subsubsection{Data-generating process}
+
+For each simulated dataset, we generate $p=2$ predictors $(x_1, x_2)$ from a bivariate normal distribution with means $(\mu_1, \mu_2)$ and covariance matrix $\Sigma = \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}$. The response $y$ follows a linear model
+\[
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \varepsilon, \quad \varepsilon \sim \mathcal{N}(0, \sigma_y^2).
+\]
+The baseline coefficients are $\beta = (1,\,0.8,\,-0.5)$, the predictor correlation is set to $\rho = 0.2$ (near-independence), and the noise standard deviation is $\sigma_y = 1$.
+
+\subsubsection{Four heterogeneity scenarios}
+
+The four scenarios separate distinct sources of subgroup disagreement.
+
+\textbf{Scenario 1 (no heterogeneity).} All $G$ groups share the same predictor distribution and coefficients. Any observed coefficient differences arise purely from finite-sample variation and mechanical differences in the design matrix $(X_g^\top X_g)$ across groups.
+
+\textbf{Scenario 2 (covariate shift only).} The group-specific predictor means $\mu^{(g)}$ are shifted by up to $0.5$ standard deviations, but the coefficients $\beta^{(g)}$ remain identical across groups. This isolates the effect of covariate distribution differences on stability metrics.
+
+\textbf{Scenario 3 (coefficient heterogeneity only).} The group-specific coefficients are shifted linearly across groups while predictor distributions are held constant. For $x_1$, the shift ranges from $-0.4$ to $0.4$ across groups; for $x_2$, it ranges from $0.2$ to $-0.2$. Given the baseline slopes, these shifts change coefficient magnitudes but retain their population signs. Sign reversals in this design can therefore arise from finite-sample estimation rather than being imposed by construction.
+
+\textbf{Scenario 4 (combined heterogeneity).} Both predictor means and coefficients vary across groups, combining the shifts from Scenarios 2 and 3. This represents the most realistic case where groups differ in both their covariate distributions and their regression relationships.
+
+\subsubsection{Imbalance patterns}
+
+Group sizes are allocated according to four imbalance patterns.
+
+\textbf{Balanced:} all groups receive equal sample sizes.
+
+\textbf{Mild:} group sizes follow a shallow linear weight sequence from 1.2 to 0.8.
+
+\textbf{Strong:} group sizes follow a steep linear weight sequence from $G$ down to 1, producing one large group and one very small group.
+
+\textbf{Dirichlet-random:} group proportions are drawn from a flat $\text{Dirichlet}(1,\dots,1)$ distribution, equivalent to normalizing $G$ independent $\text{Exponential}(1)$ draws by their sum. This pattern samples a wide range of allocations, from near balance to strong concentration, without imposing a fixed ordering of group sizes.
+
+A minimum floor of 5 observations per group is enforced to avoid degenerate subgroup fits; the floor is lowered dynamically to $\lfloor n/G \rfloor$ when $G \times 5$ exceeds the total sample size.
+
+\subsubsection{Settings grid}
+
+The simulation grid varies four factors:
+\begin{itemize}
+  \item Number of groups: $G \in \{2, 3, 5, 15, 40\}$.
+  \item Total sample size: $n \in \{100, 300, 1200, 3000, 6000, 30000, 200000\}$.
+  \item Imbalance pattern: $\{\text{balanced},\text{mild},\text{strong},\text{Dirichlet-random}\}$.
+  \item Scenario type: $\{\text{S1},\text{S2},\text{S3},\text{S4}\}$.
+\end{itemize}
+Each scenario contains $5 \times 7 \times 4 = 140$ settings, for 560 settings in total. Settings with fewer than three observations in at least one subgroup are excluded from aggregate summaries. This leaves 136 directly comparable settings per scenario.
+
+Each setting is replicated 200 times. Within each replicate, all four regression specifications (pooled, intercept-shifted, interaction, and separate group models; Section~\ref{sec:methods}) are fitted, and the five stability metrics are averaged across predictors (SSR, $D_j^\star$, $\widetilde{D}_j$) or across groups (the pooled-versus-subgroup prediction gap and CSS). The replicate-level means are then summarized by their mean, standard deviation, and a 95\% confidence interval.
+
+\subsection{Results}\label{sec:results}
+
+Scenario~1 provides the finite-sample baseline. With identical population slopes and predictor distributions, differences between subgroup estimates arise from random sampling and from realized differences in the subgroup information matrices $(X_g^\top X_g)$.
+
+Table~\ref{tab:scenario-summary} gives the main 200-replication comparison. The summaries use the 136 settings per scenario with minimum subgroup size at least three. Medians are used because a small number of boundary settings can produce very large coefficient-drift values.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Median diagnostic values across retained settings in the 200-replication simulation study.}
+\label{tab:scenario-summary}
+\begin{tabular}{lrrrrr}
+\toprule
+Scenario & Drift & Context drift & Prediction gap & CSS & Shrinkage \\
+\midrule
+No heterogeneity & 3.64 & 3.11 & 0.0043 & 0.057 & 5.4\% \\
+Covariate shift only & 3.78 & 2.47 & 0.0044 & 0.502 & 33.2\% \\
+Coefficient heterogeneity only & 24.64 & 21.74 & 0.0636 & 0.059 & 5.5\% \\
+Combined heterogeneity & 25.41 & 16.12 & 0.0645 & 0.508 & 33.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{../results/mc200/figures/fig1_drift_ssr_mc200.png}
+  \caption{Left: median standardized drift with interquartile range by number of groups and imbalance pattern. Right: share of retained settings with SSR below one. Each point summarizes seven sample-size settings; colours denote imbalance pattern.}
+  \label{fig:drift-ssr-by-G}
+\end{figure}
+
+\subsubsection{Scenario 1 establishes a finite-sample baseline}
+
+Figure~\ref{fig:drift-ssr-by-G} shows the finite-sample baseline. Drift rises when observations are divided among more groups, and strong or random imbalance increases the rise. On the retained grid, median drift increases from 1.05 at $G=2$ to 31.14 at $G=40$. Sign stability stays at one in most settings, but the share of settings with SSR below one rises with the number of groups and reaches one under random imbalance at $G=40$. Aggregate sample size is therefore not sufficient to determine subgroup stability; the amount and configuration of information within each group also matter.
+
+\subsubsection{Covariate shift produces a mechanical signature}
+
+Scenario~2 shifts predictor means while retaining common slopes. Its median raw drift is close to the Scenario~1 value (1.04 times as large), whereas its covariate-shift summary is 8.77 times larger. Context normalization reduces median drift by 33.2\%, compared with 5.4\% in Scenario~1. The pooled-versus-subgroup prediction gap is essentially unchanged from the baseline. In this design, the diagnostics identify substantial distributional separation without evidence that the population slopes have changed.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{../results/mc200/figures/fig2_context_shrinkage_mc200.png}
+  \caption{Left: Scenario~1 context-normalized drift against standardized drift on logarithmic axes; the dashed line is equality. Right: distribution of drift reduction after normalization in each scenario, labeled by median covariate shift (S1 no heterogeneity, S2 covariate shift, S3 coefficient heterogeneity, S4 combined). Boxes show medians and interquartile ranges; points are individual settings.}
+  \label{fig:context-shrinkage}
+\end{figure}
+
+\subsubsection{Coefficient heterogeneity creates persistent instability}
+
+Scenario~3 changes slopes while keeping predictor distributions comparable. Relative to Scenario~1, median raw drift is 6.76 times larger, context-normalized drift is 6.98 times larger, and the prediction gap is 14.66 times larger. Context normalization removes little of the drift (5.5\%). The change in slopes, rather than subgroup mean separation, drives the difference in this design.
+
+Scenario~4 combines shifted means and slopes. It has the largest median raw drift and prediction gap. Relative to Scenario~1, its median raw drift is 6.97 times larger and its prediction gap is 14.87 times larger. It has the lowest mean SSR (0.976), while Scenario~3 has the largest share of retained settings with SSR below one. Its context-normalized drift is lower than in Scenario~3 because the adjustment removes part of the mean-separation component, but it remains 5.18 times the Scenario~1 value.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.58\textwidth]{../results/mc200/figures/scenario_drift_comparison_mc200.png}
+  \caption{Distribution of mean standardized drift across the 136 retained settings in each scenario. The logarithmic scale emphasizes the separation between the common-slope baseline and settings with coefficient heterogeneity.}
+  \label{fig:scenario-drift-comparison}
+\end{figure}
+
+\subsubsection{Imbalance and group count intensify instability}
+
+Balanced and mildly imbalanced designs are generally more stable than strong or random imbalance. Random imbalance gives the highest median drift in Scenarios~1, 2, and 4; strong imbalance does so in Scenario~3. Increasing the number of groups raises drift in every scenario. These patterns show that subgroup comparison becomes less precise both when slopes differ and when the information supporting individual subgroup fits is uneven.
+
+\subsubsection{Context normalization distinguishes the two mechanisms}
+
+The contrast between Scenarios~2 and 3 is informative. In Scenario~2, large covariate shift accompanies substantial shrinkage after normalization. In Scenario~3, covariate shift remains near the baseline and normalization has little effect, while drift and the prediction gap remain large. Scenario~4 combines these patterns. Context-normalized drift is therefore a descriptive complement to raw drift. It is not a formal decomposition of causal or structural sources of coefficient variation.
+
+\subsubsection{Benchmark against the interaction test}
+
+Table~\ref{tab:interaction-benchmark} reports the reduced-grid benchmark of the conventional F-test for group-specific slopes. The test is well calibrated in the two common-slope scenarios: its average rejection rates are $0.051$ in Scenario~1 and $0.049$ in Scenario~2, close to the nominal $0.05$ level. In contrast, the test rejects common slopes in $0.852$ of Scenario~3 settings and $0.845$ of Scenario~4 settings, averaged across the reduced design grid.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Average rejection rate of the $\alpha=0.05$ group-slope interaction F-test across the reduced benchmark grid. Each scenario-setting cell uses 200 replications.}
+\label{tab:interaction-benchmark}
+\begin{tabular}{lr}
+\toprule
+Scenario & Mean rejection rate \\
+\midrule
+No heterogeneity & 0.051 \\
+Covariate shift only & 0.049 \\
+Coefficient heterogeneity only & 0.852 \\
+Combined heterogeneity & 0.845 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The benchmark confirms that a standard interaction test detects the slope changes built into Scenarios~3 and 4. It does not, however, distinguish Scenario~1 from Scenario~2, nor does it describe the size of coefficient departures, the role of covariate separation, or the within-group predictive cost of pooling. The diagnostics in this paper are intended to supplement, rather than replace, that hypothesis-testing comparison.
+
+\subsubsection{Design-boundary settings}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.65\textwidth]{../results/mc200/figures/drift_heatmap_mc200.png}
+  \caption{Mean standardized drift as a function of $G$, total $N$, and imbalance pattern. Colour indicates $\log_{10}$(drift). Settings with $\min(n_g) \geq 3$.}
+  \label{fig:drift-heatmap}
+\end{figure}
+
+Figure~\ref{fig:drift-heatmap} displays the baseline pattern across Scenario~1. The high-group, low-sample corner produces extreme estimates when the smallest subgroup has fewer than three observations. These settings are excluded from aggregate comparisons. Medians over the retained grid are therefore more informative than unfiltered means for comparing the scenarios.
+

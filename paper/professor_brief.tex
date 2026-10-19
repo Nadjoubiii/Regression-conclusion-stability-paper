@@ -1,0 +1,80 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.82in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+
+\setlist{nosep,leftmargin=*}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+
+\title{\textbf{How Stable Are Regression Conclusions Across Subpopulations?}\\
+\large A Brief for Preprint Review}
+\author{Research summary}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Question and motivation}
+
+Applied researchers commonly fit one regression to a pooled sample and interpret the resulting coefficients as if they describe every relevant subgroup. This is efficient, but it can be misleading. A pooled coefficient may conceal different subgroup relationships, and a model that performs acceptably on average may not transfer to every group.
+
+This project asks a focused diagnostic question: \emph{when does one pooled linear regression provide a stable summary of relationships observed across predefined subpopulations?} The aim is not to introduce a new estimator or replace stratified regression. Instead, subgroup-specific fits are used to assess whether the pooled model preserves coefficient direction, coefficient magnitude, and predictive performance across groups.
+
+\section*{Approach}
+
+The study combines a controlled simulation with one empirical illustration. The simulation varies the number of groups, total sample size, group-size imbalance, covariate distributions, and the degree of coefficient heterogeneity. All four scenarios use the same $140$-setting grid and $200$ replications per setting. Four settings with fewer than three observations in at least one subgroup are excluded from aggregate comparisons, leaving $136$ directly comparable settings per scenario.
+
+The analysis compares pooled, group-adjusted, interaction, and separate subgroup regressions. It evaluates directional agreement, standardized coefficient movement, a covariate-context adjustment to that movement, the within-group loss from using the pooled rather than group-specific model, and covariate-distribution separation. The guiding distinction is between apparent disagreement created by finite samples or different predictor distributions and disagreement that remains when subgroup regression relationships genuinely differ.
+
+Mathematically, if subgroup slopes differ, the pooled population target is a design-weighted compromise:
+\[
+\beta_{\mathrm{pool}}^{\dagger}
+= \left(\sum_{g=1}^{G}X_g^\top X_g\right)^{-1}
+  \sum_{g=1}^{G}X_g^\top X_g\beta_g.
+\]
+Even when all $\beta_g$ are equal, subgroup estimates vary because their precision depends on $X_g^\top X_g$. When slopes differ, the excess target-group risk from using the pooled rather than group-specific coefficient is proportional to
+\[
+(\beta_{\mathrm{pool}}^{\dagger}-\beta_g)^\top\Sigma_g(\beta_{\mathrm{pool}}^{\dagger}-\beta_g).
+\]
+
+\section*{Main simulation findings}
+
+The unified simulation separates three interpretable patterns. Scenario 1 is the finite-sample baseline. Even with no true heterogeneity, splitting observations into many uneven groups increases subgroup coefficient dispersion. Scenario 2 changes predictor distributions while holding slopes fixed. It produces much larger covariate separation and substantial reduction after context normalization, but little additional prediction loss. Scenario 3 changes slopes while holding predictor distributions broadly comparable. It produces large residual coefficient movement and a much larger within-group loss from using the pooled model. Scenario 4 combines both mechanisms.
+
+\begin{center}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Scenario & Drift & Context drift & Prediction gap & Covariate shift & Shrinkage \\
+\midrule
+No heterogeneity & 3.64 & 3.11 & 0.004 & 0.057 & 5.4\% \\
+Covariate shift only & 3.78 & 2.47 & 0.004 & 0.502 & 33.2\% \\
+Coefficient heterogeneity only & 24.64 & 21.74 & 0.064 & 0.059 & 5.5\% \\
+Combined heterogeneity & 25.41 & 16.12 & 0.065 & 0.508 & 33.5\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Relative to the no-heterogeneity baseline, coefficient heterogeneity increases median drift by $6.76$ times and the median prediction gap by $14.66$ times. The combined scenario has the largest raw drift and prediction gap. Its lower context-normalized drift than the coefficient-only case is itself informative: part of its raw movement is associated with covariate separation, but a large residual discrepancy remains.
+
+On a reduced simulation grid, the conventional $\alpha=0.05$ interaction F-test rejected common slopes in $5.1\%$ of no-heterogeneity settings and $4.9\%$ of covariate-shift-only settings. Its average rejection rate was $85.2\%$ under coefficient heterogeneity and $84.5\%$ under combined heterogeneity. Thus, the standard test detects slope differences in this design, while the diagnostic framework adds information about coefficient magnitude, covariate separation, and the predictive cost of pooling.
+
+\section*{Empirical illustration and contribution}
+
+The empirical analysis uses substantively defined age groups in a health-survey regression. The pooled model masks a predictor whose coefficient changes direction in later age groups. The pattern remains after a sensitivity analysis excluding the smallest group, and group-specific models improve in-group predictive performance across the age strata. This is an illustration, not a causal claim or a universal biomedical conclusion.
+
+Repeated five-fold cross-validation supports the in-sample comparison. Across 20 repetitions and 800 held-out group-fold evaluations, pooled RMSE exceeded age-specific RMSE by $0.911$ on average. The descriptive repeated-CV interval was $[0.813, 1.008]$, and the age-specific model had lower average held-out RMSE in every age group.
+
+The contribution is therefore diagnostic and empirical. The paper provides a structured way to ask whether subgroup regression results justify a single pooled interpretation, and to distinguish three cases: finite-sample disagreement, disagreement associated with covariate context, and persistent relationship heterogeneity. The intended use is as a practical complement to interaction models and stratified regression, not as a substitute for either.
+
+\section*{Current limits and request}
+
+The work is limited to low-dimensional linear models, a restricted set of simulated mechanisms, and one empirical illustration. The context adjustment is descriptive rather than a formal causal decomposition. The $200$ replications per setting provide substantially more stable Monte Carlo summaries than the original exploratory run. The interaction benchmark uses a reduced grid, and the empirical validation uses repeated held-out comparisons from one dataset. Additional datasets and alternative subgroup definitions remain important extensions.
+
+The manuscript is now internally consistent, fully compiled, and supported by a unified four-scenario simulation design. I am seeking feedback on whether the framing and evidence are appropriate for posting as a cautious preprint, and whether the contribution is sufficiently clear to support an endorsement.
+
+\end{document}

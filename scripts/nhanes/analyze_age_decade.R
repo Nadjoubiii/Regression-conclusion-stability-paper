@@ -212,7 +212,7 @@ main <- function(min_group_n = 80, out_dir = file.path("results", "nhanes_age_de
     ) +
     theme_minimal(base_size = 13) +
     theme(axis.text.x = element_text(angle = 35, hjust = 1))
-  ggsave(file.path(out_dir, "bpsys_coef_by_age_decade_ci.png"), p_bpsys_ci, width = 10, height = 5.8, dpi = 160)
+  ggsave(file.path(out_dir, "bpsys_coef_by_age_decade_ci.png"), p_bpsys_ci, width = 10, height = 5.8, dpi = 300)
 
   # Predicted BMI across DirectChol: pooled line and one line per age-decade model.
   x_var <- "DirectChol"

@@ -1,28 +1,50 @@
-\section{Real-Data Case Studies}\label{sec:realdata}
+\section{Empirical Illustration}\label{sec:realdata}
 
-We now report the first real-data case study using NHANES, with subgrouping by age decade. The analysis uses complete cases for
-\{AgeDecade, BMI, Gender, Poverty, DirectChol, Pulse, BPSysAve\}, leaving $n=7116$ observations across $G=8$ groups
-($0$--$9$: 186, $10$--$19$: 1080, $20$--$29$: 1126, $30$--$39$: 1138, $40$--$49$: 1217, $50$--$59$: 1116, $60$--$69$: 782, $70+$: 471).
+The empirical illustration uses NHANES data, with age decade as the subgroup variable. Complete cases for AgeDecade, BMI, Gender, Poverty, DirectChol, Pulse, and BPSysAve yield $n=7116$ observations in eight groups: ages 0 to 9 ($n=186$), 10 to 19 ($n=1080$), 20 to 29 ($n=1126$), 30 to 39 ($n=1138$), 40 to 49 ($n=1217$), 50 to 59 ($n=1116$), 60 to 69 ($n=782$), and 70 or older ($n=471$).
 
 The pooled model is
 \[
 \mathrm{BMI} \sim \mathrm{Gender} + \mathrm{Poverty} + \mathrm{DirectChol} + \mathrm{Pulse} + \mathrm{BPSysAve},
 \]
-and we fit the same formula separately within each age decade. We then compute sign stability, standardized drift, context-normalized drift, and predictor-wise objective components.
+and the same formula is fitted separately within each age decade. We then compute sign stability, standardized drift, context-normalized drift, and predictor-level summaries.
 
-The aggregate stability summary indicates meaningful subgroup heterogeneity: mean sign stability is $0.814$, mean standardized drift is $16.203$, mean context-normalized drift is $11.339$, and the objective score is $16.389$.
+The aggregate summary shows substantial variation across age groups: mean sign stability is $0.814$, mean standardized drift is $16.203$, and mean context-normalized drift is $11.339$.
 
-Predictor-level metrics show that BPSysAve is the least stable term in this specification. Its sign stability rate is $0.571$, standardized drift is $32.070$, and context-normalized drift is $17.641$. By contrast, Gendermale and DirectChol have perfect sign stability (SSR $=1.0$), although DirectChol still shows nontrivial magnitude drift.
+Among the predictors, BPSysAve has the lowest sign stability in this specification. Its SSR is $0.571$, standardized drift is $32.070$, and context-normalized drift is $17.641$. Gendermale and DirectChol have SSR equal to one, although DirectChol still has appreciable magnitude drift.
 
-To visualize coefficient heterogeneity, we generated pooled and subgroup coefficient tables and fitted-curve plots, and added a dedicated BPSysAve coefficient plot with 95\% confidence intervals by age decade. The BPSysAve plot shows a clear decline across age, with sign reversal in the oldest decades.
+Figure~\ref{fig:nhanes-bpsys-ci} shows the BPSysAve coefficient and its 95\% confidence interval in each age group, together with the pooled estimate. The estimated coefficient declines with age and changes sign.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{../results/nhanes_age_decade/bpsys_coef_by_age_decade_ci.png}
-\caption{Estimated BPSysAve coefficient by age decade with 95\% confidence intervals. The dashed horizontal line and shaded band show the pooled estimate and its 95\% interval.}
+\caption{BPSysAve coefficient by age decade with 95\% intervals; the dashed line and band show the pooled estimate.}
 \label{fig:nhanes-bpsys-ci}
 \end{figure}
 
-Because the youngest decade has a smaller sample ($n=186$), we ran a size-sensitivity check. Excluding $0$--$9$ reduces several drift values, but does not remove instability for BPSysAve (drift falls from $32.070$ to $28.696$, SSR changes from $0.571$ to $0.524$). Among similarly sized middle-age groups ($10$--$19$ through $50$--$59$), BPSysAve sign agreement is high, while older decades still drive directional mismatch. This pattern supports a regime-change interpretation rather than a pure small-sample artifact.
+The youngest group is relatively small ($n=186$), so we repeated the analysis after excluding ages 0 to 9. Several drift values decreased, but the BPSysAve result remained: drift fell from $32.070$ to $28.696$ and SSR changed from $0.571$ to $0.524$. The instability is therefore not attributable solely to the smallest group. This sensitivity check does not establish a distinct age-specific mechanism; nonlinear age effects and omitted variables remain possible explanations.
 
-We also compared pooled versus age-specific predictive accuracy within each decade. Group-specific models improved RMSE and $R^2$ in every decade. The largest pooled failure occurred in $0$--$9$ (pooled $R^2=-3.485$ vs subgroup $R^2=0.241$), while notable gains remained in older groups (for $70+$: pooled $R^2=-0.086$ vs subgroup $R^2=0.130$). These results are consistent with coefficient instability and indicate that one pooled linear rule is not uniformly accurate across age strata.
+We compared the pooled and age-specific models within each age group. The age-specific model had lower RMSE and higher $R^2$ in every group. The largest difference occurred for ages 0 to 9, where pooled $R^2=-3.485$ and subgroup $R^2=0.241$. Improvements also remained in the oldest group, where pooled $R^2=-0.086$ and subgroup $R^2=0.130$.
+
+We then conducted 20 repetitions of five-fold cross-validation, assigning folds separately within age groups. Across the 800 held-out group-fold evaluations, the average pooled RMSE exceeded the age-specific RMSE by $0.911$. The repeated-CV interval was $[0.813, 1.008]$; this interval describes variation across repeated fold assignments and is not treated as a formal population confidence interval. The pooled model had higher average held-out RMSE in every age group. The largest difference was for ages 0 to 9 ($4.461$), but positive differences remained in the older groups, including $0.613$ for ages 70 and older. Thus, the in-sample pattern is also present in repeated held-out predictions for this specification. Table~\ref{tab:nhanes-cv} reports the group-level estimates and their intervals.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\caption{Repeated five-fold cross-validation by age decade. Positive differences favor the age-specific model; intervals describe variation across fold assignments.}
+\label{tab:nhanes-cv}
+\begin{tabular}{lrrrr}
+\toprule
+Age decade & Pooled RMSE & Group RMSE & Difference & Interval \\
+\midrule
+0--9   & 7.777 & 3.316 & 4.461 & [4.338, 4.584] \\
+10--19 & 6.266 & 5.177 & 1.089 & [1.046, 1.132] \\
+20--29 & 6.233 & 6.189 & 0.044 & [0.027, 0.060] \\
+30--39 & 6.540 & 6.263 & 0.278 & [0.246, 0.309] \\
+40--49 & 5.971 & 5.839 & 0.132 & [0.117, 0.147] \\
+50--59 & 6.056 & 5.839 & 0.217 & [0.199, 0.234] \\
+60--69 & 6.517 & 6.064 & 0.453 & [0.420, 0.486] \\
+70+    & 6.590 & 5.977 & 0.612 & [0.549, 0.675] \\
+\bottomrule
+\end{tabular}
+\end{table}

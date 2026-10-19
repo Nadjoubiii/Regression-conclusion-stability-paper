@@ -1,0 +1,23 @@
+# Local data (not redistributed)
+data/raw/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+texput.log
+
+# Temporary page renders
+paper/page-*.png
+paper/check-*.png
+paper/verify-*.png
+paper/pos-*.png
+
+# OS files
+Thumbs.db
+.DS_Store
